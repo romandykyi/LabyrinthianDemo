@@ -1,0 +1,31 @@
+﻿<MudGrid Justify="Justify.Center">
+	<MudItem xs="12" sm="12" md="8" lg="6">
+		@mazeSvg
+	</MudItem>
+</MudGrid>
+
+@code {
+	private MarkupString mazeSvg = new();
+
+	[Parameter]
+	public Maze? Maze { get; set; }
+
+	protected override async Task OnParametersSetAsync()
+	{
+		if (Maze == null) return;
+
+		// Create a maze exporter
+		MazeSvgExporter exporter = new(Maze)
+		{
+			Walls.AsOnePath()
+		};
+		// Export maze into a string
+		using StringWriter stringWriter = new();
+		using (SvgWriter svgWriter = new(stringWriter))
+		{
+			await exporter.ExportAsync(svgWriter);
+		}
+		// Render an SVG
+		mazeSvg = new(stringWriter.ToString());
+	}
+}
