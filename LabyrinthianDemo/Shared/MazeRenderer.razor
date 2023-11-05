@@ -1,5 +1,9 @@
 ﻿@inject MazeState MazeState
 
+@if (MazeState.Maze != null)
+{
+	<MudText Typo="Typo.h6" Align="Align.Center">@MazeState.Maze.ToString()</MudText>
+}
 <MudGrid Justify="Justify.Center">
 	<MudItem xs="12" sm="12" md="8" lg="6">
 		@mazeSvg
