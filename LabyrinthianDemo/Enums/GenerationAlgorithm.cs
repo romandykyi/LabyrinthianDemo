@@ -1,4 +1,4 @@
-﻿namespace LabyrinthianDemo.Enums;
+﻿namespace LabyrinthianDemo;
 
 public enum GenerationAlgorithm
 {
