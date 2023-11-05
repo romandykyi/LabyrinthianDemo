@@ -1,13 +1,1 @@
 /* /Shared/MainLayout.razor.rz.scp.css */
-/* /Shared/MazeRenderer.razor.rz.scp.css */
-.svg-container[b-ylxv0hv3pu] {
-    height: 100vh;
-}
-
-.svg-wrapper[b-ylxv0hv3pu] {
-    background-color: red;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
