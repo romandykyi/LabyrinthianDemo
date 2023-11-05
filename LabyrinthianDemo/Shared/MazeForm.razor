@@ -13,6 +13,37 @@
 					</MudSelectItem>
 				}
 			</MudSelect>
+			<MudText Typo="Typo.h6">Size</MudText>
+			<!-- Maze size selection -->
+			@switch (mazeType)
+			{
+				<!-- Rectangular sizes -->
+				case MazeType.Orthogonal or
+					MazeType.RectangularDelta or
+					MazeType.RectangularSigma or
+					MazeType.Upsilon or
+					MazeType.AlternativeUpsilon:
+					<MudNumericField @bind-Value="width" Label="Width" Min="2" Max="100" />
+					<MudNumericField @bind-Value="height" Label="Height" Min="2" Max="100" />
+					if (mazeType != MazeType.AlternativeUpsilon)
+					{
+						<MudNumericField @bind-Value="inWidth" Label="Inner width" Min="0" Max="@(width - 2)" />
+						<MudNumericField @bind-Value="inHeight" Label="Inner height" Min="0" Max="@(height - 2)" />
+					}
+					break;
+				<!-- Hexagonal/Triangular sizes -->
+				case MazeType.HexagonalSigma or MazeType.HexagonalDelta or
+					MazeType.TriangularDelta:
+					<MudNumericField @bind-Value="sideLength" Label="Side length" Min="2" Max="100" />
+					<MudNumericField @bind-Value="inSideLength" Label="Inner side length" Min="2" Max="@(sideLength - 2)" />
+					break;
+				<!-- Circular sizes -->
+				case MazeType.Theta:
+					<MudNumericField @bind-Value="radius" Label="Radius" Min="3" Max="100" />
+					<MudNumericField @bind-Value="inRadius" Label="Inner radius" Min="2" Max="@(radius - 2)" />
+					<MudNumericField @bind-Value="segments" Label="Segments" Min="5" Max="150" />
+					break;
+			}
 		</MudPaper>
 	</MudItem>
 	<!-- Generation section -->
@@ -30,7 +61,7 @@
 				}
 			</MudSelect>
 			<MudButton OnClick="Generate"
-				Color="Color.Primary" Variant="Variant.Filled">
+					   Color="Color.Primary" Variant="Variant.Filled">
 				Generate
 			</MudButton>
 		</MudPaper>
@@ -38,8 +69,21 @@
 </MudGrid>
 
 @code {
-	private GenerationAlgorithm algorithm;
-	private MazeType mazeType;
+	private GenerationAlgorithm algorithm { get; set; }
+	private MazeType mazeType { get; set; }
+
+	// Rectangular sizes
+	private int width { get; set; } = 15;
+	private int height { get; set; } = 15;
+	private int inWidth { get; set; } = 0;
+	private int inHeight { get; set; } = 0;
+	// Hexagonal/Triangular sizes
+	private int sideLength { get; set; } = 10;
+	private int inSideLength { get; set; } = 0;
+	// Circular sizes
+	private int radius { get; set; } = 15;
+	private int inRadius { get; set; } = 0;
+	private int segments { get; set; } = 20;
 
 	// Checks whether generation algorithm is compatible with current maze type
 	private bool IsAlgorithmDisabled(GenerationAlgorithm algorithm)
@@ -60,11 +104,15 @@
 		// Select a maze type
 		Maze maze = mazeType switch
 		{
-			MazeType.Orthogonal => new OrthogonalMaze(20, 20),
-			MazeType.Delta => new DeltaMaze(20, 20),
-			MazeType.Sigma => new SigmaMaze(20, 20),
-			MazeType.Theta => new ThetaMaze(20),
-			MazeType.Upsilon => new UpsilonMaze(20, 20),
+			MazeType.Orthogonal => new OrthogonalMaze(width, height, inWidth, inHeight),
+			MazeType.Theta => new ThetaMaze(radius, inRadius, segments),
+			MazeType.TriangularDelta => new DeltaMaze(sideLength, inSideLength),
+			MazeType.RectangularDelta => new DeltaMaze(width, height, inWidth, inHeight),
+			MazeType.HexagonalDelta => DeltaMaze.CreateHexagonal(sideLength, inSideLength),
+			MazeType.RectangularSigma => new SigmaMaze(width, height, inWidth, inHeight),
+			MazeType.HexagonalSigma => new SigmaMaze(sideLength, inSideLength),
+			MazeType.Upsilon => new UpsilonMaze(width, height, inWidth, inHeight),
+			MazeType.AlternativeUpsilon => new AlternativeUpsilonMaze(width, height),
 			_ => throw new InvalidOperationException("Invalid maze type was selected")
 		};
 		// Select a generation algorithm
