@@ -1,21 +1,20 @@
-﻿<MudGrid Justify="Justify.Center">
+﻿@inject MazeState MazeState
+
+<MudGrid Justify="Justify.Center">
 	<MudItem xs="12" sm="12" md="8" lg="6">
 		@mazeSvg
 	</MudItem>
 </MudGrid>
 
 @code {
-	private MarkupString mazeSvg = new();
+	private MarkupString mazeSvg { get; set; } = new();
 
-	[Parameter]
-	public Maze? Maze { get; set; }
-
-	protected override async Task OnParametersSetAsync()
+	private async Task OnMazeUpdated()
 	{
-		if (Maze == null) return;
+		if (MazeState.Maze == null) return;
 
 		// Create a maze exporter
-		MazeSvgExporter exporter = new(Maze)
+		MazeSvgExporter exporter = new(MazeState.Maze)
 		{
 			Walls.AsOnePath()
 		};
@@ -27,5 +26,11 @@
 		}
 		// Render an SVG
 		mazeSvg = new(stringWriter.ToString());
+		StateHasChanged();
+	}
+
+	protected override void OnInitialized()
+	{
+		MazeState.StateChanged += OnMazeUpdated;
 	}
 }

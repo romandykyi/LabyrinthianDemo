@@ -5,17 +5,10 @@
 
 <h1>Labyrinthian Demo</h1>
 
-<MudButton OnClick="DisplayMaze">Generate</MudButton>
+<MazeForm />
 
-<MazeRenderer Maze="@maze" />
+<MazeRenderer />
 
 @code {
-	private Maze? maze;
 
-	private void DisplayMaze()
-	{
-		maze = new SigmaMaze(10, 5);
-		MazeGenerator generator = new PrimGeneration(maze);
-		generator.Generate();
-	}
 }

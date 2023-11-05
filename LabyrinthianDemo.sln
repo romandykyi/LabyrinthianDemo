@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabyrinthianDemo", "LabyrinthianDemo\LabyrinthianDemo.csproj", "{870774F0-E37D-4ECE-B1A6-D254D65C073A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LabyrinthianDemo", "LabyrinthianDemo\LabyrinthianDemo.csproj", "{870774F0-E37D-4ECE-B1A6-D254D65C073A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

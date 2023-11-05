@@ -1,0 +1,94 @@
+﻿@inject MazeState MazeState
+
+<MudGrid Justify="Justify.Center">
+	<!-- Maze section -->
+	<MudItem xs="12" sm="11" md="10" lg="5" xl="4">
+		<MudPaper Class="pa-4">
+			<MudText Typo="Typo.h5">Maze</MudText>
+			<MudSelect T="MazeType" Label="Maze type" @bind-Value="mazeType">
+				@foreach (MazeType mazeType in Enum.GetValues(typeof(MazeType)))
+				{
+					<MudSelectItem T="MazeType" Value="@mazeType">
+						@mazeType.ToHumanReadableString()
+					</MudSelectItem>
+				}
+			</MudSelect>
+		</MudPaper>
+	</MudItem>
+	<!-- Generation section -->
+	<MudItem xs="12" sm="11" md="10" lg="5" xl="4">
+		<MudPaper Class="pa-4">
+			<MudText Typo="Typo.h5">Generation</MudText>
+			<MudSelect T="GenerationAlgorithm" Label="Generation algorithm" @bind-Value="algorithm">
+				@foreach (GenerationAlgorithm algorithm in Enum.GetValues(typeof(GenerationAlgorithm)))
+				{
+					<MudSelectItem T="GenerationAlgorithm"
+								   Disabled="IsAlgorithmDisabled(algorithm)"
+								   Value="@algorithm">
+						@algorithm.ToHumanReadableString()
+					</MudSelectItem>
+				}
+			</MudSelect>
+			<MudButton OnClick="Generate"
+				Color="Color.Primary" Variant="Variant.Filled">
+				Generate
+			</MudButton>
+		</MudPaper>
+	</MudItem>
+</MudGrid>
+
+@code {
+	private GenerationAlgorithm algorithm;
+	private MazeType mazeType;
+
+	// Checks whether generation algorithm is compatible with current maze type
+	private bool IsAlgorithmDisabled(GenerationAlgorithm algorithm)
+	{
+		// All algorithms support orthogonal and theta mazes
+		if (mazeType == MazeType.Theta || mazeType == MazeType.Orthogonal)
+			return false;
+
+		// These algorithms are compatible only with orthogonal and theta mazes
+		return algorithm == GenerationAlgorithm.BinaryTree ||
+			algorithm == GenerationAlgorithm.RecursiveDivision ||
+			algorithm == GenerationAlgorithm.Sidewinder;
+	}
+
+	// Generate a maze based on user input
+	private async Task Generate()
+	{
+		// Select a maze type
+		Maze maze = mazeType switch
+		{
+			MazeType.Orthogonal => new OrthogonalMaze(20, 20),
+			MazeType.Delta => new DeltaMaze(20, 20),
+			MazeType.Sigma => new SigmaMaze(20, 20),
+			MazeType.Theta => new ThetaMaze(20),
+			MazeType.Upsilon => new UpsilonMaze(20, 20),
+			_ => throw new InvalidOperationException("Invalid maze type was selected")
+		};
+		// Select a generation algorithm
+		MazeGenerator generator = algorithm switch
+		{
+			GenerationAlgorithm.AldousBroder => new AldousBroderGeneration(maze),
+			GenerationAlgorithm.BinaryTree => new BinaryTreeGeneration(maze),
+			GenerationAlgorithm.DepthFirstSearch => new DFSGeneration(maze),
+			GenerationAlgorithm.EdgeBasedPrim => new EdgeBasedPrimGeneration(maze),
+			GenerationAlgorithm.GrowingTree => new GrowingTreeGeneration(maze),
+			GenerationAlgorithm.HuntAndKill => new HuntAndKillGeneration(maze),
+			GenerationAlgorithm.Kruskal => new KruskalGeneration(maze),
+			GenerationAlgorithm.Prim => new PrimGeneration(maze),
+			GenerationAlgorithm.RecursiveBacktracker => new RecursiveBacktrackerGeneration(maze),
+			GenerationAlgorithm.RecursiveDivision => new RecursiveDivisionGeneration(maze),
+			GenerationAlgorithm.Sidewinder => new SidewinderGeneration(maze),
+			GenerationAlgorithm.Wilson => new WilsonGeneration(maze),
+			_ => throw new InvalidOperationException("Invalid generation algorithm was selected")
+		};
+
+		// Generate a maze
+		generator.Generate();
+
+		// Update the state
+		await MazeState.UpdateMazeAsync(maze);
+	}
+}
