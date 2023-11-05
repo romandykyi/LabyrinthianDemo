@@ -1,8 +1,10 @@
 name: Deploy Blazor WASM to GitHub Pages
 
 on:
-    push:
-        branches: [main]
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
     deploy-to-github-pages:
