@@ -221,24 +221,25 @@
 		// Generate a maze
 		foreach (var _ in generator.GenerateStepByStep())
 		{
-			if (generateStepByStep)
-			{
-				// Wait before the next step
-				double intervalS =
-						MaxGenerationTimeS * generationSpeed + MinGenerationTimeS * (1.0 - generationSpeed);
-				await Task.Delay(TimeSpan.FromSeconds(intervalS));
+			// Skip all steps if step-by-step generation is turned off
+			if (!generateStepByStep) continue;
 
-				if (cancellationToken.IsCancellationRequested)
-					return;
+			// Update the state
+			await MazeState.UpdateMazeAsync(maze, generator);
 
-				// Update the state
-				await MazeState.UpdateMazeAsync(maze, generator);
-			}
+			// Wait before the next step
+			double intervalS =
+					MaxGenerationTimeS * generationSpeed + MinGenerationTimeS * (1.0 - generationSpeed);
+			await Task.Delay(TimeSpan.FromSeconds(intervalS));
+
+			// Exit when cancellation is requested
+			if (cancellationToken.IsCancellationRequested)
+				return;
 		}
-		// Update the state
+		// Update the final maze state
 		if (!cancellationToken.IsCancellationRequested)
 		{
-			await MazeState.UpdateMazeAsync(maze, generator);
+			await MazeState.UpdateMazeAsync(maze, generator, true);
 			generating = false;
 		}
 	}

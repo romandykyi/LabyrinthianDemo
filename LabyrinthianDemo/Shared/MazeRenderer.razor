@@ -1,14 +1,25 @@
-﻿@inject MazeState MazeState
+﻿@using System.Xml
+@inject MazeState MazeState
+@inject IJSRuntime JS
 
 @if (MazeState.Maze != null)
 {
 	<MudText Typo="Typo.h6" Align="Align.Center">@MazeState.Maze.ToString()</MudText>
+	<MudGrid Justify="Justify.Center">
+		<MudItem xs="12" sm="12" md="8" lg="6">
+			@mazeSvg
+			@if (MazeState.IsGenerated)
+			{
+				<MudButton Class="align-center"
+						   StartIcon="@Icons.Material.Filled.Save"
+						   Variant="Variant.Outlined" Color="Color.Surface"
+						   OnClick="ExportSvg">
+					Save as SVG
+				</MudButton>
+			}
+		</MudItem>
+	</MudGrid>
 }
-<MudGrid Justify="Justify.Center">
-	<MudItem xs="12" sm="12" md="8" lg="6">
-		@mazeSvg
-	</MudItem>
-</MudGrid>
 
 @code {
 	private MarkupString mazeSvg { get; set; } = new();
@@ -20,10 +31,11 @@
 			yield return generator.SelectedCell;
 	}
 
-	private async Task OnMazeUpdated()
+	// Creates a maze exporter
+	private MazeSvgExporter? GetMazeExporter(bool humanReadable)
 	{
 		Maze? maze = MazeState.Maze;
-		if (maze == null) return;
+		if (maze == null) return null;
 		// Generator cannot be null if maze is not null
 		MazeGenerator generator = MazeState.Generator!;
 
@@ -31,23 +43,25 @@
 		SvgGroup unvisitedCellsGroup = new()
 			{
 				Fill = SvgColor.FromHexCode("#111111"),
-				Stroke = SvgColor.FromHexCode("#111111")
+				Stroke = SvgColor.FromHexCode("#111111"),
+				Id = humanReadable ? "unvisitedCells" : null
 			};
 		// Group for highlighted cells
 		SvgGroup highilightedCellsGroup = new()
 			{
 				Fill = SvgColor.Gray,
-				Stroke = SvgColor.Gray
+				Stroke = SvgColor.Gray,
+				Id = humanReadable ? "highlightedCells" : null
 			};
 		// Group for selected cell
 		SvgGroup selectedCellGroup = new()
 			{
 				Fill = SvgColor.Red,
-				Stroke = SvgColor.Red
+				Stroke = SvgColor.Red,
+				Id = humanReadable ? "selectedCells" : null
 			};
 
-		// Create a maze exporter
-		MazeSvgExporter exporter = new(maze, padding: 5f)
+		return new(maze, padding: 5f)
 		{
 			// Unvisited cells that also are not highlighted
             Cells.Selected(
@@ -60,8 +74,16 @@
             // Selected cell
             Cells.Selected(SelectedCellEnumerable(generator), selectedCellGroup),
             // Walls
-            Walls.AsOnePath()
+            humanReadable ? Walls.AsSeparatePaths() : Walls.AsOnePath()
 		};
+	}
+
+	// Update state of the maze
+	private async Task OnMazeUpdated()
+	{
+		MazeSvgExporter? exporter = GetMazeExporter(false);
+		if (exporter == null) return;
+
 		// Export maze into a string
 		using StringWriter stringWriter = new();
 		using (SvgWriter svgWriter = new(stringWriter))
@@ -71,6 +93,36 @@
 		// Render an SVG
 		mazeSvg = new(stringWriter.ToString());
 		StateHasChanged();
+	}
+
+	// Export maze into SVG format
+	private async Task ExportSvg()
+	{
+		MazeSvgExporter? exporter = GetMazeExporter(true);
+		if (exporter == null || !MazeState.IsGenerated) return;
+
+		// Save a maze into a memory stream
+		MemoryStream memoryStream = new();
+		XmlWriterSettings xmlSettings = new()
+			{
+				Async = true,
+				Indent = true
+			};
+		using StreamWriter streamWriter = new(memoryStream);
+		using (SvgWriter svgWriter = new(streamWriter, xmlSettings))
+		{
+			await exporter.ExportAsync(svgWriter);
+		}
+		await streamWriter.FlushAsync();
+		memoryStream.Seek(0, SeekOrigin.Begin);
+
+		// Extract a file name from the description of the maze
+		string description = MazeState.Maze!.Description;
+		string fileName = $"{description[0..description.IndexOf(" generated")]}.svg";
+
+		// Save a file
+		using DotNetStreamReference streamRef = new(memoryStream);
+		await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
 	}
 
 	protected override void OnInitialized()
