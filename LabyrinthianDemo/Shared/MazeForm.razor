@@ -232,13 +232,13 @@
 					return;
 
 				// Update the state
-				await MazeState.UpdateMazeAsync(maze);
+				await MazeState.UpdateMazeAsync(maze, generator);
 			}
 		}
 		// Update the state
 		if (!cancellationToken.IsCancellationRequested)
 		{
-			await MazeState.UpdateMazeAsync(maze);
+			await MazeState.UpdateMazeAsync(maze, generator);
 			generating = false;
 		}
 	}
