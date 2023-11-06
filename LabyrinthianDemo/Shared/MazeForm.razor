@@ -60,6 +60,9 @@
 					</MudSelectItem>
 				}
 			</MudSelect>
+			<MudTextField @bind-Value="seed" Disabled="@useRandomSeed"
+						  Label="Seed" />
+			<MudCheckBox @bind-Checked="useRandomSeed" Label="Random seed" />
 			<MudButton OnClick="Generate"
 					   Color="Color.Primary" Variant="Variant.Filled">
 				Generate
@@ -84,6 +87,21 @@
 	private int radius { get; set; } = 15;
 	private int inRadius { get; set; } = 0;
 	private int segments { get; set; } = 20;
+
+	// Seed
+	private int seed { get; set; }
+	private bool useRandomSeed { get; set; } = true;
+
+	protected override void OnInitialized()
+	{
+		RegenerateSeed();
+	}
+
+	// Regenerates a maze generation seed
+	private void RegenerateSeed() 
+	{
+		seed = Random.Shared.Next();
+	}
 
 	// Checks whether generation algorithm is compatible with current maze type
 	private bool IsAlgorithmDisabled(GenerationAlgorithm algorithm)
@@ -115,21 +133,26 @@
 			MazeType.AlternativeUpsilon => new AlternativeUpsilonMaze(width, height),
 			_ => throw new InvalidOperationException("Invalid maze type was selected")
 		};
+		// Select a seed
+		if (useRandomSeed)
+		{
+			RegenerateSeed();
+		}
 		// Select a generation algorithm
 		MazeGenerator generator = algorithm switch
 		{
-			GenerationAlgorithm.AldousBroder => new AldousBroderGeneration(maze),
-			GenerationAlgorithm.BinaryTree => new BinaryTreeGeneration(maze),
-			GenerationAlgorithm.DepthFirstSearch => new DFSGeneration(maze),
-			GenerationAlgorithm.EdgeBasedPrim => new EdgeBasedPrimGeneration(maze),
-			GenerationAlgorithm.GrowingTree => new GrowingTreeGeneration(maze),
-			GenerationAlgorithm.HuntAndKill => new HuntAndKillGeneration(maze),
-			GenerationAlgorithm.Kruskal => new KruskalGeneration(maze),
-			GenerationAlgorithm.Prim => new PrimGeneration(maze),
-			GenerationAlgorithm.RecursiveBacktracker => new RecursiveBacktrackerGeneration(maze),
-			GenerationAlgorithm.RecursiveDivision => new RecursiveDivisionGeneration(maze),
-			GenerationAlgorithm.Sidewinder => new SidewinderGeneration(maze),
-			GenerationAlgorithm.Wilson => new WilsonGeneration(maze),
+			GenerationAlgorithm.AldousBroder => new AldousBroderGeneration(maze, seed),
+			GenerationAlgorithm.BinaryTree => new BinaryTreeGeneration(maze, seed),
+			GenerationAlgorithm.DepthFirstSearch => new DFSGeneration(maze, seed),
+			GenerationAlgorithm.EdgeBasedPrim => new EdgeBasedPrimGeneration(maze, seed),
+			GenerationAlgorithm.GrowingTree => new GrowingTreeGeneration(maze, seed),
+			GenerationAlgorithm.HuntAndKill => new HuntAndKillGeneration(maze, seed),
+			GenerationAlgorithm.Kruskal => new KruskalGeneration(maze, seed),
+			GenerationAlgorithm.Prim => new PrimGeneration(maze, seed),
+			GenerationAlgorithm.RecursiveBacktracker => new RecursiveBacktrackerGeneration(maze, seed),
+			GenerationAlgorithm.RecursiveDivision => new RecursiveDivisionGeneration(maze, seed),
+			GenerationAlgorithm.Sidewinder => new SidewinderGeneration(maze, seed),
+			GenerationAlgorithm.Wilson => new WilsonGeneration(maze, seed),
 			_ => throw new InvalidOperationException("Invalid generation algorithm was selected")
 		};
 
