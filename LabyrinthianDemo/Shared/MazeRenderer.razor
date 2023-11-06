@@ -50,17 +50,17 @@
 		MazeSvgExporter exporter = new(maze, padding: 5f)
 		{
 			// Unvisited cells that also are not highlighted
-                Cells.Selected(
-					maze.Cells.Where(c => !generator.VisitedCells[c] && !generator.HighlightedCells[c]),
-					unvisitedCellsGroup),
-                // Highlighted cells
-                Cells.Selected(
-					maze.Cells.Where(c => generator.HighlightedCells[c]),
-					highilightedCellsGroup),
-                // Selected cell
-                Cells.Selected(SelectedCellEnumerable(generator), selectedCellGroup),
-                // Walls
-                Walls.AsOnePath()
+            Cells.Selected(
+				maze.Cells.Where(c => !generator.VisitedCells[c] && !generator.HighlightedCells[c]),
+				unvisitedCellsGroup),
+            // Highlighted cells
+            Cells.Selected(
+				maze.Cells.Where(c => generator.HighlightedCells[c]),
+				highilightedCellsGroup),
+            // Selected cell
+            Cells.Selected(SelectedCellEnumerable(generator), selectedCellGroup),
+            // Walls
+            Walls.AsOnePath()
 		};
 		// Export maze into a string
 		using StringWriter stringWriter = new();
