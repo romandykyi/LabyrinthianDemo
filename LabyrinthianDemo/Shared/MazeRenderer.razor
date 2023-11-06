@@ -18,7 +18,7 @@
 		if (MazeState.Maze == null) return;
 
 		// Create a maze exporter
-		MazeSvgExporter exporter = new(MazeState.Maze)
+		MazeSvgExporter exporter = new(MazeState.Maze, padding: 5f)
 		{
 			Walls.AsOnePath()
 		};

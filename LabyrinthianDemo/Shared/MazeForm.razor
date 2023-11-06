@@ -1,4 +1,5 @@
-﻿@inject MazeState MazeState
+﻿@using LabyrinthianDemo.Extensions;
+@inject MazeState MazeState
 @inject ISnackbar Snackbar
 
 <MudGrid Justify="Justify.Center">
@@ -61,10 +62,20 @@
 					</MudSelectItem>
 				}
 			</MudSelect>
+			<!-- Seed section -->
 			<MudTextField @bind-Value="seed" Disabled="@useRandomSeed"
 						  Label="Seed" />
-			<MudCheckBox @bind-Checked="useRandomSeed" Label="Random seed" />
-			<MudButton OnClick="Generate"
+			<MudCheckBox @bind-Checked="useRandomSeed"
+						 Label="Random seed" Color="Color.Primary" />
+			<!-- Step-by-step generation section -->
+			<MudCheckBox @bind-Checked="generateStepByStep"
+						 Label="Generate step by step" Color="Color.Primary" />
+			<MudSlider @bind-Value="generationSpeed"
+					   Min="0.0" Max="1.0" Step="0.01"
+					   Disabled="!generateStepByStep">
+				Generation speed
+			</MudSlider>
+			<MudButton OnClick="OnGenerateButtonClicked"
 					   Color="Color.Primary" Variant="Variant.Filled">
 				Generate
 			</MudButton>
@@ -73,6 +84,9 @@
 </MudGrid>
 
 @code {
+	// Cancelation token source for Generate method
+	private CancellationTokenSource? _generateCancelationSource;
+
 	private GenerationAlgorithm algorithm { get; set; }
 	private MazeType mazeType { get; set; }
 
@@ -93,13 +107,18 @@
 	private int seed { get; set; }
 	private bool useRandomSeed { get; set; } = true;
 
+	// Step-by-step generation
+	private const double MinGenerationTimeS = 1.5, MaxGenerationTimeS = 0.1;
+	private double generationSpeed { get; set; } = 1.0;
+	private bool generateStepByStep { get; set; } = false;
+
 	protected override void OnInitialized()
 	{
 		RegenerateSeed();
 	}
 
 	// Regenerates a maze generation seed
-	private void RegenerateSeed() 
+	private void RegenerateSeed()
 	{
 		seed = Random.Shared.Next();
 	}
@@ -117,8 +136,22 @@
 			algorithm == GenerationAlgorithm.Sidewinder;
 	}
 
+
+	// When "Generate" button was clicked
+	private async Task OnGenerateButtonClicked()
+	{
+		// Cancel previous generation
+		if (_generateCancelationSource != null)
+		{
+			_generateCancelationSource.Cancel();
+		}
+		// Start new generation
+		_generateCancelationSource = new();
+		await Generate(_generateCancelationSource.Token);
+	}
+
 	// Generate a maze based on user input
-	private async Task Generate()
+	private async Task Generate(CancellationToken cancelationToken)
 	{
 		// Check if the maze type and the algorithm are compatible
 		if (IsAlgorithmDisabled(algorithm))
@@ -164,9 +197,24 @@
 		};
 
 		// Generate a maze
-		generator.Generate();
+		await foreach (var _ in generator.GenerateStepByStepAsync())
+		{
+			if (generateStepByStep)
+			{
+				// Wait before the next step
+				double intervalS =
+						MaxGenerationTimeS * generationSpeed + MinGenerationTimeS * (1.0 - generationSpeed);
+				await Task.Delay(TimeSpan.FromSeconds(intervalS));
 
+				if (cancelationToken.IsCancellationRequested)
+					return;
+
+				// Update the state
+				await MazeState.UpdateMazeAsync(maze);
+			}
+		}
 		// Update the state
-		await MazeState.UpdateMazeAsync(maze);
+		if (!cancelationToken.IsCancellationRequested)
+			await MazeState.UpdateMazeAsync(maze);
 	}
 }
