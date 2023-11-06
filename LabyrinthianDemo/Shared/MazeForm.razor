@@ -1,4 +1,5 @@
 ﻿@inject MazeState MazeState
+@inject ISnackbar Snackbar
 
 <MudGrid Justify="Justify.Center">
 	<!-- Maze section -->
@@ -40,7 +41,7 @@
 				<!-- Circular sizes -->
 				case MazeType.Theta:
 					<MudNumericField @bind-Value="radius" Label="Radius" Min="3" Max="100" />
-					<MudNumericField @bind-Value="inRadius" Label="Inner radius" Min="2" Max="@(radius - 2)" />
+					<MudNumericField @bind-Value="inRadius" Label="Inner radius" Min="0" Max="@(radius - 2)" />
 					<MudNumericField @bind-Value="segments" Label="Segments" Min="5" Max="150" />
 					break;
 			}
@@ -106,8 +107,8 @@
 	// Checks whether generation algorithm is compatible with current maze type
 	private bool IsAlgorithmDisabled(GenerationAlgorithm algorithm)
 	{
-		// All algorithms support orthogonal and theta mazes
-		if (mazeType == MazeType.Theta || mazeType == MazeType.Orthogonal)
+		// All algorithms support orthogonal mazes without inner room
+		if (mazeType == MazeType.Orthogonal && (inWidth == 0 || inHeight == 0))
 			return false;
 
 		// These algorithms are compatible only with orthogonal and theta mazes
@@ -119,6 +120,12 @@
 	// Generate a maze based on user input
 	private async Task Generate()
 	{
+		// Check if the maze type and the algorithm are compatible
+		if (IsAlgorithmDisabled(algorithm))
+		{
+			Snackbar.Add("Algorithm and maze parameters are not compatible", Severity.Error);
+			return;
+		}
 		// Select a maze type
 		Maze maze = mazeType switch
 		{
