@@ -1,5 +1,4 @@
-﻿@using LabyrinthianDemo.Extensions;
-@inject MazeState MazeState
+﻿@inject MazeState MazeState
 @inject ISnackbar Snackbar
 
 <MudGrid Justify="Justify.Center">
@@ -75,17 +74,31 @@
 					   Disabled="!generateStepByStep">
 				Generation speed
 			</MudSlider>
-			<MudButton OnClick="OnGenerateButtonClicked"
-					   Color="Color.Primary" Variant="Variant.Filled">
-				Generate
-			</MudButton>
+			<MudStack Row="true">
+				@if (generating && generateStepByStep)
+				{
+					<MudButton OnClick="OnGenerateButtonClicked"
+							   Color="Color.Tertiary" Variant="Variant.Filled">
+						Regenerate
+					</MudButton>
+				}
+				else
+				{
+					<MudButton OnClick="OnGenerateButtonClicked"
+							   Color="Color.Primary" Variant="Variant.Filled">
+						Generate
+					</MudButton>
+				}
+			</MudStack>
 		</MudPaper>
 	</MudItem>
 </MudGrid>
 
 @code {
+	// Flag that indicates whether maze is currently being generated
+	private bool generating { get; set; } = false;
 	// Cancelation token source for Generate method
-	private CancellationTokenSource? _generateCancelationSource;
+	private CancellationTokenSource? _generateCancellationSource;
 
 	private GenerationAlgorithm algorithm { get; set; }
 	private MazeType mazeType { get; set; }
@@ -108,7 +121,7 @@
 	private bool useRandomSeed { get; set; } = true;
 
 	// Step-by-step generation
-	private const double MinGenerationTimeS = 1.5, MaxGenerationTimeS = 0.1;
+	private const double MinGenerationTimeS = 1.5, MaxGenerationTimeS = 0.01;
 	private double generationSpeed { get; set; } = 1.0;
 	private bool generateStepByStep { get; set; } = false;
 
@@ -136,22 +149,31 @@
 			algorithm == GenerationAlgorithm.Sidewinder;
 	}
 
-
 	// When "Generate" button was clicked
 	private async Task OnGenerateButtonClicked()
 	{
 		// Cancel previous generation
-		if (_generateCancelationSource != null)
+		if (_generateCancellationSource != null)
 		{
-			_generateCancelationSource.Cancel();
+			_generateCancellationSource.Cancel();
 		}
 		// Start new generation
-		_generateCancelationSource = new();
-		await Generate(_generateCancelationSource.Token);
+		_generateCancellationSource = new();
+		await Generate(_generateCancellationSource.Token);
+	}
+
+	// When "Cancel" button was clicked
+	private void OnCancelButtonClicked()
+	{
+		if (_generateCancellationSource != null)
+		{
+			_generateCancellationSource.Cancel();
+			generating = false;
+		}
 	}
 
 	// Generate a maze based on user input
-	private async Task Generate(CancellationToken cancelationToken)
+	private async Task Generate(CancellationToken cancellationToken)
 	{
 		// Check if the maze type and the algorithm are compatible
 		if (IsAlgorithmDisabled(algorithm))
@@ -159,6 +181,7 @@
 			Snackbar.Add("Algorithm and maze parameters are not compatible", Severity.Error);
 			return;
 		}
+		generating = true;
 		// Select a maze type
 		Maze maze = mazeType switch
 		{
@@ -195,9 +218,8 @@
 			GenerationAlgorithm.Wilson => new WilsonGeneration(maze, seed),
 			_ => throw new InvalidOperationException("Invalid generation algorithm was selected")
 		};
-
 		// Generate a maze
-		await foreach (var _ in generator.GenerateStepByStepAsync())
+		foreach (var _ in generator.GenerateStepByStep())
 		{
 			if (generateStepByStep)
 			{
@@ -206,7 +228,7 @@
 						MaxGenerationTimeS * generationSpeed + MinGenerationTimeS * (1.0 - generationSpeed);
 				await Task.Delay(TimeSpan.FromSeconds(intervalS));
 
-				if (cancelationToken.IsCancellationRequested)
+				if (cancellationToken.IsCancellationRequested)
 					return;
 
 				// Update the state
@@ -214,7 +236,10 @@
 			}
 		}
 		// Update the state
-		if (!cancelationToken.IsCancellationRequested)
+		if (!cancellationToken.IsCancellationRequested)
+		{
 			await MazeState.UpdateMazeAsync(maze);
+			generating = false;
+		}
 	}
 }
