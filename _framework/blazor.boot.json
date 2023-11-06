@@ -7,9 +7,9 @@
   "linkerEnabled": true,
   "resources": {
     "assembly": {
-      "Labyrinthian.dll": "sha256-j1OYZGaE6HigAVywe61PwSavPxDL+swQg9Qi1ebidq4=",
-      "Labyrinthian.Svg.dll": "sha256-wmrNRM3sWzDo5G6V+2XYqkAGDcXv\/tIcsToC2WKEP5A=",
-      "LabyrinthianDemo.dll": "sha256-Xid12\/EdnoABFXqJKLSgTOcjidVwuyzcgGZeWCx2t0M=",
+      "Labyrinthian.dll": "sha256-sDQfXR9C6pH4e87eDgXkW1dGbR+jkBTZilXcrEcDk48=",
+      "Labyrinthian.Svg.dll": "sha256-WK5zG+XxW+h5WczNmg\/2G2N\/ll5ZZb1hhGghhrKmY3Y=",
+      "LabyrinthianDemo.dll": "sha256-osUc9SZIdTTX\/kMzQknVU2mPsRPs3YxOGal6KBa\/sFo=",
       "Microsoft.AspNetCore.Components.dll": "sha256-GWZ5NfnjWgHDi8YFnVFJh+xBKzrzoSL8tbU8lUKx5UY=",
       "Microsoft.AspNetCore.Components.Forms.dll": "sha256-lTGczpAvB0Ro2j12mMu\/Pii5zpNernzb\/qOsMfP+uKI=",
       "Microsoft.AspNetCore.Components.Web.dll": "sha256-OQ4\/jygrQsa7WwuD\/2WOTQW8Lks384ld0bc46sDwzYs=",
