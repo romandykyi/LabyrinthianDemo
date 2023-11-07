@@ -83,6 +83,18 @@
 						Reset
 					</MudButton>
 					break;
+
+				case GenerationAlgorithm.RecursiveBacktracker or
+					GenerationAlgorithm.GrowingTree:
+					<MudSelect @bind-Value="cellSelection" Label="Cell selection">
+						@foreach (MazeCellSelectionType selection in Enum.GetValues(typeof(MazeCellSelectionType)))
+						{
+							<MudSelectItem T="MazeCellSelectionType" Value="@selection">
+								@selection.ToHumanReadableString()
+							</MudSelectItem>
+						}
+					</MudSelect>
+					break;
 			}
 			<!-- Seed section -->
 			<MudTextField @bind-Value="seed" Disabled="@useRandomSeed"
@@ -151,6 +163,9 @@
 	private decimal bias = 0.5m;
 	private const float MinBias = 0.01f, MaxBias = 10f;
 
+	// Growing tree and recursive backtracker settings
+	private MazeCellSelectionType cellSelection = MazeCellSelectionType.Random;
+
 	// Step-by-step generation
 	private const double MinGenerationTimeS = 1.5, MaxGenerationTimeS = 0.01;
 	private double generationSpeed { get; set; } = 1.0;
@@ -165,6 +180,23 @@
 	private void RegenerateSeed()
 	{
 		seed = Random.Shared.Next();
+	}
+
+	private MazeCellSelection GetCellSelection()
+	{
+		return cellSelection switch
+		{
+			MazeCellSelectionType.Random => MazeGeneratorWithCustomSelection.RandomSelection,
+			MazeCellSelectionType.Newest => (_, n) => n - 1,
+			MazeCellSelectionType.Latest => (_, _) => 0,
+			MazeCellSelectionType.Newest25OrRandom75 => (rnd, n) => rnd.Bool(0.25) ? n - 1 : rnd.Next(n),
+			MazeCellSelectionType.Newest50OrRandom50 => (rnd, n) => rnd.Bool() ? n - 1 : rnd.Next(n),
+			MazeCellSelectionType.Newest75OrRandom25 => (rnd, n) => rnd.Bool(0.75) ? n - 1 : rnd.Next(n),
+			MazeCellSelectionType.Latest25OrRandom75 => (rnd, n) => rnd.Bool(0.25) ? 0 : rnd.Next(n),
+			MazeCellSelectionType.Latest50OrRandom50 => (rnd, n) => rnd.Bool() ? 0 : rnd.Next(n),
+			MazeCellSelectionType.Latest75OrRandom25 => (rnd, n) => rnd.Bool(0.75) ? 0 : rnd.Next(n),
+			_ => throw new InvalidOperationException("Invalid maze cell selection")
+		};
 	}
 
 	// Checks whether generation algorithm is compatible with current maze type
@@ -239,11 +271,11 @@
 			GenerationAlgorithm.BinaryTree => new BinaryTreeGeneration(maze, seed),
 			GenerationAlgorithm.DepthFirstSearch => new DFSGeneration(maze, seed),
 			GenerationAlgorithm.EdgeBasedPrim => new EdgeBasedPrimGeneration(maze, seed),
-			GenerationAlgorithm.GrowingTree => new GrowingTreeGeneration(maze, seed),
+			GenerationAlgorithm.GrowingTree => new GrowingTreeGeneration(maze, seed, GetCellSelection()),
 			GenerationAlgorithm.HuntAndKill => new HuntAndKillGeneration(maze, seed),
 			GenerationAlgorithm.Kruskal => new KruskalGeneration(maze, seed),
 			GenerationAlgorithm.Prim => new PrimGeneration(maze, seed),
-			GenerationAlgorithm.RecursiveBacktracker => new RecursiveBacktrackerGeneration(maze, seed),
+			GenerationAlgorithm.RecursiveBacktracker => new RecursiveBacktrackerGeneration(maze, seed, GetCellSelection()),
 			GenerationAlgorithm.RecursiveDivision => new RecursiveDivisionGeneration(maze, seed,
 				MathHelper.LerpBias(MinBias, MaxBias, (float)bias)),
 			GenerationAlgorithm.Sidewinder => new SidewinderGeneration(maze, seed, (float)horizontalCarveProbability),
