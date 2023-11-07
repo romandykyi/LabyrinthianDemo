@@ -259,6 +259,12 @@
 			MazeType.AlternativeUpsilon => new AlternativeUpsilonMaze(width, height),
 			_ => throw new InvalidOperationException("Invalid maze type was selected")
 		};
+		// Select entry and exit
+		MazeEdge entry = maze.GetOuterWalls().First(); // First outer wall
+		MazeEdge exit = maze.GetOuterWalls().Last(); // Last outer wall
+		
+        maze.Paths.Add(new(maze, entry, exit));
+
 		// Select a seed
 		if (useRandomSeed)
 		{
