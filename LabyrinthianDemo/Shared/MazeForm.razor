@@ -246,24 +246,33 @@
 		}
 		generating = true;
 		// Select a maze type
-		Maze maze = mazeType switch
+		Maze maze;
+		try
 		{
-			MazeType.Orthogonal => new OrthogonalMaze(width, height, inWidth, inHeight),
-			MazeType.Theta => new ThetaMaze(radius, inRadius, segments),
-			MazeType.TriangularDelta => new DeltaMaze(sideLength, inSideLength),
-			MazeType.RectangularDelta => new DeltaMaze(width, height, inWidth, inHeight),
-			MazeType.HexagonalDelta => DeltaMaze.CreateHexagonal(sideLength, inSideLength),
-			MazeType.RectangularSigma => new SigmaMaze(width, height, inWidth, inHeight),
-			MazeType.HexagonalSigma => new SigmaMaze(sideLength, inSideLength),
-			MazeType.Upsilon => new UpsilonMaze(width, height, inWidth, inHeight),
-			MazeType.AlternativeUpsilon => new AlternativeUpsilonMaze(width, height),
-			_ => throw new InvalidOperationException("Invalid maze type was selected")
-		};
+			maze = mazeType switch
+			{
+				MazeType.Orthogonal => new OrthogonalMaze(width, height, inWidth, inHeight),
+				MazeType.Theta => new ThetaMaze(radius, inRadius, segments),
+				MazeType.TriangularDelta => new DeltaMaze(sideLength, inSideLength),
+				MazeType.RectangularDelta => new DeltaMaze(width, height, inWidth, inHeight),
+				MazeType.HexagonalDelta => DeltaMaze.CreateHexagonal(sideLength, inSideLength),
+				MazeType.RectangularSigma => new SigmaMaze(width, height, inWidth, inHeight),
+				MazeType.HexagonalSigma => new SigmaMaze(sideLength, inSideLength),
+				MazeType.Upsilon => new UpsilonMaze(width, height, inWidth, inHeight),
+				MazeType.AlternativeUpsilon => new AlternativeUpsilonMaze(width, height),
+				_ => throw new InvalidOperationException("Invalid maze type was selected")
+			};
+		}
+		catch (ArgumentOutOfRangeException)
+		{
+			Snackbar.Add("Maze size parameters are invalid", Severity.Error);
+			return;
+		}
 		// Select entry and exit
 		MazeEdge entry = maze.GetOuterWalls().First(); // First outer wall
 		MazeEdge exit = maze.GetOuterWalls().Last(); // Last outer wall
-		
-        maze.Paths.Add(new(maze, entry, exit));
+
+		maze.Paths.Add(new(maze, entry, exit));
 
 		// Select a seed
 		if (useRandomSeed)
