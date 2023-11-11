@@ -6,11 +6,13 @@
 		<MudPaper Class="pa-4">
 			<MudText Typo="Typo.h5">SVG settings</MudText>
 			<MudNumericField Label="Cell size"
-			@bind-Value="RendererState.CellSize" />
+				@bind-Value="RendererState.CellSize" />
 			<MudNumericField Label="Padding" Min="2.0f"
-			@bind-Value="RendererState.Padding" />
+				@bind-Value="RendererState.Padding" />
 			<MudNumericField Label="Walls width" Min="2.0f"
-			@bind-Value="RendererState.WallsWidth" />
+				@bind-Value="RendererState.WallsWidth" />
+			<MudCheckBox @bind-Checked="RendererState.Indent" 
+				 Label="Indent" />
 			<MudButton Variant="Variant.Filled" Color="Color.Tertiary"
 					   OnClick="Rerender">
 				Apply
