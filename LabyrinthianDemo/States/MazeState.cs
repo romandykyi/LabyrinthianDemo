@@ -32,6 +32,24 @@ public class MazeState
 	public bool IsGenerated { get; private set; }
 
 	/// <summary>
+	/// Updates the state asynchronously without changing a maze.
+	/// </summary>
+	/// <remarks>
+	/// If maze is being generated, then this method will do nothing.
+	/// </remarks>
+	/// <returns>
+	/// A task that represents an asynchronous operation.
+	/// </returns>
+	public async Task UpdateMazeAsync()
+	{
+		if (!IsGenerated) return;
+		foreach (var handler in eventHandlers)
+		{
+			await handler.Invoke();
+		}
+	}
+
+	/// <summary>
 	/// Updates the state asynchronously.
 	/// </summary>
 	/// <param name="maze">State of the maze.</param>

@@ -1,0 +1,27 @@
+﻿@inject MazeState MazeState
+@inject SvgRendererState RendererState
+
+<MudGrid Justify="Justify.Center">
+	<MudItem xs="12" sm="12" md="10" lg="6" xl="5">
+		<MudPaper Class="pa-4">
+			<MudText Typo="Typo.h5">SVG settings</MudText>
+			<MudNumericField Label="Cell size"
+			@bind-Value="RendererState.CellSize" />
+			<MudNumericField Label="Padding" Min="2.0f"
+			@bind-Value="RendererState.Padding" />
+			<MudNumericField Label="Walls width" Min="2.0f"
+			@bind-Value="RendererState.WallsWidth" />
+			<MudButton Variant="Variant.Filled" Color="Color.Tertiary"
+					   OnClick="Rerender">
+				Apply
+			</MudButton>
+		</MudPaper>
+	</MudItem>
+</MudGrid>
+
+@code {
+	private async Task Rerender()
+	{
+		await MazeState.UpdateMazeAsync();
+	}
+}

@@ -1,5 +1,6 @@
 ﻿@using System.Xml
 @inject MazeState MazeState
+@inject SvgRendererState RendererState
 @inject IJSRuntime JS
 
 @if (MazeState.Maze != null)
@@ -24,65 +25,11 @@
 @code {
 	private MarkupString mazeSvg { get; set; } = new();
 
-	// IEnumerable for selected cell of generator
-	private IEnumerable<MazeCell> SelectedCellEnumerable(MazeGenerator generator)
-	{
-		if (generator.SelectedCell != null)
-			yield return generator.SelectedCell;
-	}
-
-	// Creates a maze exporter
-	private MazeSvgExporter? GetMazeExporter(bool humanReadable)
-	{
-		Maze? maze = MazeState.Maze;
-		if (maze == null) return null;
-		// Generator cannot be null if maze is not null
-		MazeGenerator generator = MazeState.Generator!;
-
-		// Group for unvisited cells
-		SvgGroup unvisitedCellsGroup = new()
-			{
-				Fill = SvgColor.FromHexCode("#111111"),
-				Stroke = SvgColor.FromHexCode("#111111"),
-				Id = humanReadable ? "unvisitedCells" : null
-			};
-		// Group for highlighted cells
-		SvgGroup highilightedCellsGroup = new()
-			{
-				Fill = SvgColor.Gray,
-				Stroke = SvgColor.Gray,
-				Id = humanReadable ? "highlightedCells" : null
-			};
-		// Group for selected cell
-		SvgGroup selectedCellGroup = new()
-			{
-				Fill = SvgColor.Red,
-				Stroke = SvgColor.Red,
-				Id = humanReadable ? "selectedCells" : null
-			};
-
-		return new(maze, padding: 5f)
-		{
-			// Unvisited cells that also are not highlighted
-            Cells.Selected(
-				maze.Cells.Where(c => !generator.VisitedCells[c] && !generator.HighlightedCells[c]),
-				unvisitedCellsGroup),
-            // Highlighted cells
-            Cells.Selected(
-				maze.Cells.Where(c => generator.HighlightedCells[c]),
-				highilightedCellsGroup),
-            // Selected cell
-            Cells.Selected(SelectedCellEnumerable(generator), selectedCellGroup),
-            // Walls
-            humanReadable ? Walls.AsSeparatePaths() : Walls.AsOnePath()
-		};
-	}
-
 	// Update state of the maze
 	private async Task OnMazeUpdated()
 	{
-		MazeSvgExporter? exporter = GetMazeExporter(false);
-		if (exporter == null) return;
+		if (MazeState.Generator == null) return;
+		MazeSvgExporter? exporter = RendererState.GetExporter(MazeState.Generator, true);
 
 		// Export maze into a string
 		using StringWriter stringWriter = new();
@@ -98,15 +45,15 @@
 	// Export maze into SVG format
 	private async Task ExportSvg()
 	{
-		MazeSvgExporter? exporter = GetMazeExporter(true);
-		if (exporter == null || !MazeState.IsGenerated) return;
-
+		if (MazeState.Generator == null || !MazeState.IsGenerated) return;
+		MazeSvgExporter exporter = RendererState.GetExporter(MazeState.Generator);
+		
 		// Save a maze into a memory stream
 		MemoryStream memoryStream = new();
 		XmlWriterSettings xmlSettings = new()
 			{
 				Async = true,
-				Indent = true
+				Indent = RendererState.Indent
 			};
 		using StreamWriter streamWriter = new(memoryStream);
 		using (SvgWriter svgWriter = new(streamWriter, xmlSettings))

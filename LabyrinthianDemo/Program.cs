@@ -10,5 +10,6 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddSingleton<MazeState>();
+builder.Services.AddSingleton<SvgRendererState>();
 
 await builder.Build().RunAsync();
