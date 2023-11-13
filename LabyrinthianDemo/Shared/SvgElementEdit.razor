@@ -1,5 +1,66 @@
-﻿<h3>SvgElementEdit</h3>
+﻿@using System.Reflection
+@using LabyrinthianDemo.Shared.SvgFields
+@typeparam T where T : SvgElement
+
+@foreach (var property in Element.GetType().GetProperties())
+{
+	var svgProperty = property.GetCustomAttribute<SvgPropertyAttribute>();
+	if (svgProperty == null) continue;
+	string propertyName = svgProperty.Name;
+	if (IgnoredProperties.Contains(propertyName)) continue;
+	
+	var propertyValue = property.GetValue(Element);
+	var propertyType = property.PropertyType;
+	var underlyingType = Nullable.GetUnderlyingType(property.PropertyType);
+
+	if (propertyType == typeof(string))
+	{
+		string? str = (string?)propertyValue!;
+		<MudTextField @bind-Value:get="str ?? string.Empty"
+		@bind-Value:set="s => property.SetValue(Element, string.IsNullOrWhiteSpace(s) ? null : s)"
+					  Label="@propertyName" />
+	}
+	else if (underlyingType?.IsEnum ?? false)
+	{
+		<MudSelect @bind-Value:get="propertyValue"
+		@bind-Value:set="e => property.SetValue(Element, e)"
+				   Label="@propertyName">
+			<MudSelectItem T="object" Value="null">--</MudSelectItem>
+			@foreach (Enum option in Enum.GetValues(underlyingType))
+			{
+				<MudSelectItem T="object" Value="option">@option.GetSvgOption()</MudSelectItem>
+			}
+		</MudSelect>
+	}
+	else if (underlyingType == typeof(SvgLength))
+	{
+		SvgLength? length = (SvgLength?)propertyValue!;
+		<SvgLengthField Label="@propertyName"
+		@bind-Length:get="length"
+		@bind-Length:set="l => {property.SetValue(Element, l); After(l);}" />
+	}
+}
 
 @code {
 
+	private void After(SvgLength? l)
+	{
+		int a = 0;
+
+	}
+
+	/// <summary>
+	/// SVG element which is edited.
+	/// </summary>
+	[Parameter]
+	[EditorRequired]
+	public T Element { get; set; } = null!;
+	[Parameter]
+	public EventCallback<T> ElementChanged { get; set; }
+
+	/// <summary>
+	/// Names of SVG properties that will be ignored.
+	/// </summary>
+	[Parameter]
+	public IEnumerable<string> IgnoredProperties { get; set; } = Enumerable.Empty<string>();
 }
