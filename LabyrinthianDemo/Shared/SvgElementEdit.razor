@@ -37,18 +37,11 @@
 		SvgLength? length = (SvgLength?)propertyValue!;
 		<SvgLengthField Label="@propertyName"
 		@bind-Length:get="length"
-		@bind-Length:set="l => {property.SetValue(Element, l); After(l);}" />
+		@bind-Length:set="l => property.SetValue(Element, l)" />
 	}
 }
 
 @code {
-
-	private void After(SvgLength? l)
-	{
-		int a = 0;
-
-	}
-
 	/// <summary>
 	/// SVG element which is edited.
 	/// </summary>
