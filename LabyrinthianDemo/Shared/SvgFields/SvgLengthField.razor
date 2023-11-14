@@ -1,6 +1,10 @@
-﻿<MudStack Row="true">
-	<MudNumericField T="float" @bind-Value="value" @bind-Value:after="Update" Label="@Label" />
-	<MudSelect @bind-Value="unit" @bind-Value:after="Update">
+﻿<MudCheckBox @bind-Checked="enabled" @bind-Checked:after="Update"
+			 Label="@($"{Label}: ")" Color="Color.Tertiary" />
+<MudStack Row="true" Justify="Justify.Center" Class="ml-8">
+	<MudNumericField @bind-Value="value" @bind-Value:after="Update"
+					 Disabled="@(!enabled)" />
+	<MudSelect @bind-Value="unit" @bind-Value:after="Update"
+			   Disabled="@(!enabled)">
 		<MudSelectItem Value="SvgLengthUnit.None">none</MudSelectItem>
 		<MudSelectItem Value="SvgLengthUnit.Pixel">px</MudSelectItem>
 		<MudSelectItem Value="SvgLengthUnit.Percentage">%</MudSelectItem>
@@ -28,12 +32,19 @@
 
 	private async Task Update()
 	{
-		Length = new(value, unit);
+		Length = enabled ? new(value, unit) : null;
 		await LengthChanged.InvokeAsync(Length);
 	}
 
 	protected override void OnInitialized()
 	{
-		base.OnInitialized();
+		if (Length == null)
+		{
+			enabled = false;
+			return;
+		}
+		enabled = true;
+		value = Length.Value.Value;
+		unit = Length.Value.Unit;
 	}
 }
