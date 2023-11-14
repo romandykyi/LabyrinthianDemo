@@ -1,0 +1,45 @@
+﻿<MudCheckBox @bind-Checked="enabled" @bind-Checked:after="Update"
+			 Label="@($"{Label}: ")" Color="Color.Tertiary" />
+@if (enabled)
+{
+	<MudStack Row="true" Justify="Justify.Center" Class="ml-8">
+		<MudNumericField @bind-Value="value" @bind-Value:after="Update"
+						 Label="@Label" />
+		<MudSelect @bind-Value="isPercentage" @bind-Value:after="Update"
+				   Label="unit">
+			<MudSelectItem Value="false">none</MudSelectItem>
+			<MudSelectItem Value="true">%</MudSelectItem>
+		</MudSelect>
+	</MudStack>
+}
+
+@code {
+	private bool enabled { get; set; }
+	private float value { get; set; }
+	private bool isPercentage { get; set; }
+
+	[Parameter]
+	public string Label { get; set; } = "";
+	[Parameter]
+	public SvgUnit? Unit { get; set; }
+	[Parameter]
+	public EventCallback<SvgUnit?> UnitChanged { get; set; }
+
+	private async Task Update()
+	{
+		Unit = enabled ? (isPercentage ? SvgUnit.FromPercentage(value) : value) : null;
+		await UnitChanged.InvokeAsync(Unit);
+	}
+
+	protected override void OnInitialized()
+	{
+		if (Unit == null)
+		{
+			enabled = false;
+			return;
+		}
+		enabled = true;
+		value = Unit.Value.Value;
+		isPercentage = Unit.Value.IsPercentage;
+	}
+}

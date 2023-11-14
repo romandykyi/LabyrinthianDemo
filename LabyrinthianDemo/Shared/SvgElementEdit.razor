@@ -39,6 +39,13 @@
 		@bind-Length:get="length"
 		@bind-Length:set="l => property.SetValue(Element, l)" />
 	}
+	else if (underlyingType == typeof(SvgUnit))
+	{
+		SvgUnit? unit = (SvgUnit?)propertyValue!;
+		<SvgUnitField Label="@propertyName"
+		@bind-Unit:get="unit"
+		@bind-Unit:set="u => property.SetValue(Element, u)" />
+	}
 	else if (propertyType == typeof(SvgFill))
 	{
 		SvgFill? fill = (SvgFill?)propertyValue!;
@@ -47,7 +54,6 @@
 		@bind-Fill:set="f => property.SetValue(Element, f)" />
 	}
 }
-
 @code {
 	/// <summary>
 	/// SVG element which is edited.
