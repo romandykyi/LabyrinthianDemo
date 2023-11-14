@@ -1,0 +1,49 @@
+﻿@using MudBlazor.Utilities
+
+<MudStack Row="true">
+	<MudSelect Label="@Label" @bind-Value="fillType" @bind-Value:after="Update">
+		<MudSelectItem Value="SvgFillType.None">none</MudSelectItem>
+		<MudSelectItem Value="SvgFillType.SolidColor">color</MudSelectItem>
+	</MudSelect>
+	@if (fillType == SvgFillType.SolidColor)
+	{
+		<MudColorPicker @bind-Value="solidColor" @bind-Value:after="Update"
+						Label="Color" DisableAlpha="true" />
+	}
+</MudStack>
+
+@code {
+	private SvgFillType fillType { get; set; }
+	private MudColor solidColor { get; set; } = new(0xFF, 0xFF, 0xFF, 0xFF);
+
+	[Parameter]
+	public string Label { get; set; } = "";
+	[Parameter]
+	public SvgFill? Fill { get; set; }
+	[Parameter]
+	public EventCallback<SvgFill?> FillChanged { get; set; }
+
+	private async Task Update()
+	{
+		Fill = fillType switch
+		{
+			SvgFillType.SolidColor => new SvgColor(solidColor.R, solidColor.G, solidColor.B),
+			_ => SvgFill.None
+		};
+		await FillChanged.InvokeAsync(Fill);
+	}
+
+	protected override void OnInitialized()
+	{
+		if (Fill is SvgColorFill solidColorFill)
+		{
+			SvgColor color = solidColorFill.Color;
+			solidColor = new(color.R, color.G, color.B, (byte)0xFF);
+			fillType = SvgFillType.SolidColor;
+		}
+		else
+		{
+			fillType = SvgFillType.None;
+		}
+	}
+}

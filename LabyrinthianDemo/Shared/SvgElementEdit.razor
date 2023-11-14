@@ -8,7 +8,7 @@
 	if (svgProperty == null) continue;
 	string propertyName = svgProperty.Name;
 	if (IgnoredProperties.Contains(propertyName)) continue;
-	
+
 	var propertyValue = property.GetValue(Element);
 	var propertyType = property.PropertyType;
 	var underlyingType = Nullable.GetUnderlyingType(property.PropertyType);
@@ -38,6 +38,13 @@
 		<SvgLengthField Label="@propertyName"
 		@bind-Length:get="length"
 		@bind-Length:set="l => property.SetValue(Element, l)" />
+	}
+	else if (propertyType == typeof(SvgFill))
+	{
+		SvgFill? fill = (SvgFill?)propertyValue!;
+		<SvgFillField Label="@propertyName"
+		@bind-Fill:get="fill"
+		@bind-Fill:set="f => property.SetValue(Element, f)" />
 	}
 }
 
