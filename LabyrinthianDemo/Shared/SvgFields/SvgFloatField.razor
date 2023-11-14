@@ -1,0 +1,38 @@
+﻿<MudCheckBox @bind-Checked="enabled" @bind-Checked:after="Update"
+			 Label="@($"{Label}: ")" Color="Color.Tertiary" />
+@if (enabled)
+{
+	<MudStack Row="true" Justify="Justify.Center" Class="ml-8">
+		<MudNumericField @bind-Value="value" @bind-Value:after="Update"
+						 Label="@Label" />
+	</MudStack>
+}
+
+@code {
+	private bool enabled { get; set; }
+	private float value { get; set; }
+
+	[Parameter]
+	public string Label { get; set; } = "";
+	[Parameter]
+	public float? Value { get; set; }
+	[Parameter]
+	public EventCallback<float?> ValueChanged { get; set; }
+
+	private async Task Update()
+	{
+		Value = enabled ? value : null;
+		await ValueChanged.InvokeAsync(Value);
+	}
+
+	protected override void OnInitialized()
+	{
+		if (Value == null)
+		{
+			enabled = false;
+			return;
+		}
+		enabled = true;
+		value = Value.Value;
+	}
+}

@@ -46,6 +46,13 @@
 		@bind-Unit:get="unit"
 		@bind-Unit:set="u => property.SetValue(Element, u)" />
 	}
+	else if (underlyingType == typeof(float))
+	{
+		float? value = (float?)propertyValue!;
+		<SvgFloatField Label="@propertyName"
+			@bind-Value:get="value"
+			@bind-Value:set="v => property.SetValue(Element, v)" />
+	}
 	else if (propertyType == typeof(SvgFill))
 	{
 		SvgFill? fill = (SvgFill?)propertyValue!;
