@@ -1,22 +1,25 @@
 ﻿<MudCheckBox @bind-Checked="enabled" @bind-Checked:after="Update"
 			 Label="@($"{Label}: ")" Color="Color.Tertiary" />
-<MudStack Row="true" Justify="Justify.Center" Class="ml-8">
-	<MudNumericField @bind-Value="value" @bind-Value:after="Update"
-					 Disabled="@(!enabled)" />
-	<MudSelect @bind-Value="unit" @bind-Value:after="Update"
-			   Disabled="@(!enabled)">
-		<MudSelectItem Value="SvgLengthUnit.None">none</MudSelectItem>
-		<MudSelectItem Value="SvgLengthUnit.Pixel">px</MudSelectItem>
-		<MudSelectItem Value="SvgLengthUnit.Percentage">%</MudSelectItem>
-		<MudSelectItem Value="SvgLengthUnit.Centimeter">cm</MudSelectItem>
-		<MudSelectItem Value="SvgLengthUnit.Millimeter">mm</MudSelectItem>
-		<MudSelectItem Value="SvgLengthUnit.Em">em</MudSelectItem>
-		<MudSelectItem Value="SvgLengthUnit.Ex">ex</MudSelectItem>
-		<MudSelectItem Value="SvgLengthUnit.Point">pt</MudSelectItem>
-		<MudSelectItem Value="SvgLengthUnit.Pica">pc</MudSelectItem>
-		<MudSelectItem Value="SvgLengthUnit.Inch">in</MudSelectItem>
-	</MudSelect>
-</MudStack>
+@if (enabled)
+{
+	<MudStack Row="true" Justify="Justify.Center" Class="ml-8">
+		<MudNumericField @bind-Value="value" @bind-Value:after="Update"
+						 Label="@Label" />
+		<MudSelect @bind-Value="unit" @bind-Value:after="Update"
+				   Label="unit">
+			<MudSelectItem Value="SvgLengthUnit.None">none</MudSelectItem>
+			<MudSelectItem Value="SvgLengthUnit.Pixel">px</MudSelectItem>
+			<MudSelectItem Value="SvgLengthUnit.Percentage">%</MudSelectItem>
+			<MudSelectItem Value="SvgLengthUnit.Centimeter">cm</MudSelectItem>
+			<MudSelectItem Value="SvgLengthUnit.Millimeter">mm</MudSelectItem>
+			<MudSelectItem Value="SvgLengthUnit.Em">em</MudSelectItem>
+			<MudSelectItem Value="SvgLengthUnit.Ex">ex</MudSelectItem>
+			<MudSelectItem Value="SvgLengthUnit.Point">pt</MudSelectItem>
+			<MudSelectItem Value="SvgLengthUnit.Pica">pc</MudSelectItem>
+			<MudSelectItem Value="SvgLengthUnit.Inch">in</MudSelectItem>
+		</MudSelect>
+	</MudStack>
+}
 
 @code {
 	private bool enabled { get; set; }
