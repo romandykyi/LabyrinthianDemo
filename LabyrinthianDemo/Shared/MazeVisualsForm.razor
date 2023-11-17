@@ -1,4 +1,5 @@
-﻿@inject MazeState MazeState
+﻿@using LabyrinthianDemo.Shared.SvgFields
+@inject MazeState MazeState
 @inject SvgRendererState RendererState
 
 <MudGrid Justify="Justify.Center">
@@ -6,13 +7,40 @@
 		<MudPaper Class="pa-4">
 			<MudText Typo="Typo.h5">SVG settings</MudText>
 			<MudNumericField Label="Cell size"
-				@bind-Value="RendererState.CellSize" />
-			<MudNumericField Label="Padding" Min="2.0f"
-				@bind-Value="RendererState.Padding" />
+			@bind-Value="RendererState.CellSize" />
+			<MudNumericField Label="Padding"
+			@bind-Value="RendererState.Padding" />
 			<MudNumericField Label="Walls width" Min="2.0f"
-				@bind-Value="RendererState.WallsWidth" />
-			<MudCheckBox @bind-Checked="RendererState.Indent" 
-				 Label="Indent" />
+			@bind-Value="RendererState.WallsWidth" />
+			<MudCheckBox @bind-Checked="RendererState.Indent"
+						 Label="Indent" />
+			<SvgFillField @bind-Fill="RendererState.BackgroundFill"
+						  Label="Background" />
+			<MudExpansionPanels>
+				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.WallsPath"
+											Text="Walls" IgnoredProperties="@IgnoredWallsProperties">
+					<MudCheckBox @bind-Checked="RendererState.ExportWallsAsSeparatePaths"
+								 Color="Color.Tertiary">
+						Separate &lt;path&gt; tags
+					</MudCheckBox>
+				</ExportModuleExpansionPanel>
+				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.SolutionPath"
+											Text="Solution" IgnoredProperties="@IgnoredEdgesProperties" />
+				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.AllCellsGroup"
+											Text="Cells" DisabledByDefault="true" />
+				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.UnvisitedCellsGroup"
+											Text="Unvisited Cells" />
+				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.HighlightedCellsGroup"
+											Text="Highlighted Cells" />
+				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.SelectedCellGroup"
+											Text="Selected Cell" />
+				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.NodesGroup"
+											Text="Graph Nodes" IgnoredProperties="@IgnoredNodesProperties"
+											DisabledByDefault="true" />
+				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.EdgesPath"
+											Text="Graph Edges" IgnoredProperties="@IgnoredEdgesProperties"
+											DisabledByDefault="true" />
+			</MudExpansionPanels>
 			<MudButton Variant="Variant.Filled" Color="Color.Tertiary"
 					   OnClick="Rerender">
 				Apply
@@ -22,6 +50,10 @@
 </MudGrid>
 
 @code {
+	private string[] IgnoredWallsProperties = { "d", "stroke-width" };
+	private string[] IgnoredEdgesProperties = { "fill" };
+	private string[] IgnoredNodesProperties = { "id" };
+
 	private async Task Rerender()
 	{
 		await MazeState.UpdateMazeAsync();

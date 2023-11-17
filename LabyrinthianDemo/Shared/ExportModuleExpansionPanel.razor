@@ -1,0 +1,63 @@
+﻿@typeparam TElement where TElement : SvgElement
+
+<MudExpansionPanel @bind-IsExpanded="expanded">
+	<TitleContent>
+		<MudCheckBox @bind-Checked="enabled" @bind-Checked:after="Update"
+					 Label="@Text" Color="Color.Secondary" />
+	</TitleContent>
+	<ChildContent>
+		<MudForm Disabled="@(!enabled)">
+			@ChildContent
+			<SvgElementEdit @bind-Element="element" IgnoredProperties="@IgnoredProperties" />
+		</MudForm>
+	</ChildContent>
+</MudExpansionPanel>
+
+@code {
+	private bool expanded { get; set; } = false;
+	private bool enabled { get; set; } = false;
+	private TElement element = Activator.CreateInstance<TElement>();
+
+	[Parameter]
+	public string Text { get; set; } = "";
+
+	[Parameter]
+	public TElement? ExportModule { get; set; }
+	[Parameter]
+	public EventCallback<TElement?> ExportModuleChanged { get; set; }
+	[Parameter]
+	public bool DisabledByDefault { get; set; } = false;
+
+	[Parameter]
+	public RenderFragment? ChildContent { get; set; }
+
+	/// <summary>
+	/// Names of SVG properties that will be ignored.
+	/// </summary>
+	[Parameter]
+	public IEnumerable<string> IgnoredProperties { get; set; } = Enumerable.Empty<string>();
+
+	private async Task Update()
+	{
+		if (enabled)
+		{
+			ExportModule = element;
+		}
+		else
+		{
+			ExportModule = null;
+			expanded = false;
+		}
+		await ExportModuleChanged.InvokeAsync(ExportModule);
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (ExportModule != null)
+		{
+			enabled = !DisabledByDefault;
+			element = ExportModule;
+			await Update();
+		}
+	}
+}

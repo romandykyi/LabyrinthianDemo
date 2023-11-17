@@ -37,7 +37,11 @@ public class SvgRendererState
 	/// <summary>
 	/// Group of all maze cells.
 	/// </summary>
-	public SvgGroup? AllCellsGroup { get; set; }
+	public SvgGroup? AllCellsGroup { get; set; } = new()
+	{
+		Fill = SvgColor.Orange,
+		Stroke = SvgColor.Orange
+	};
 	/// <summary>
 	/// Group of unvisited cells(used in step-by-step generation).
 	/// </summary>
@@ -68,11 +72,20 @@ public class SvgRendererState
 	/// <summary>
 	/// Group of maze graph nodes.
 	/// </summary>
-	public SvgGroup? NodesGroup { get; set; }
+	public SvgGroup? NodesGroup { get; set; } = new()
+	{
+		Fill = SvgColor.White,
+		Stroke = SvgColor.Black,
+		StrokeWidth = 1f
+	};
 	/// <summary>
 	/// Shape of maze graph nodes.
 	/// </summary>
-	public SvgShape? NodesShape { get; set; }
+	public SvgShape? NodesShape { get; set; } = new SvgCircle()
+	{
+		R = 4f,
+		Id = "node"
+	};
 	/// <summary>
 	/// Flag which determines whether walls should be exported as separate paths.
 	/// </summary>
@@ -90,11 +103,21 @@ public class SvgRendererState
 	/// <summary>
 	/// Path for maze graph edges.
 	/// </summary>
-	public SvgPath? EdgesPath { get; set; }
+	public SvgPath? EdgesPath { get; set; } = new()
+	{
+		Fill = SvgFill.None,
+		StrokeWidth = 1.5f,
+		Stroke = SvgColor.Red
+	};
 	/// <summary>
 	/// Path used for a solution.
 	/// </summary>
-	public SvgPath? SolutionPath { get; set; }
+	public SvgPath? SolutionPath { get; set; } = new()
+	{
+		Fill = SvgFill.None,
+		StrokeWidth = 1.5f,
+		Stroke = SvgColor.Blue
+	};
 
 	// IEnumerable for selected cell of generator
 	private static IEnumerable<MazeCell> SelectedCellEnumerable(MazeGenerator generator)
@@ -148,7 +171,7 @@ public class SvgRendererState
 			exporter.Add(
 				Cells.Selected(SelectedCellEnumerable(generator), SelectedCellGroup));
 		}
-		if (NodesShape != null)
+		if (NodesGroup != null)
 		{
 			exporter.Add(Nodes.All(NodesShape, NodesGroup));
 		}
