@@ -130,6 +130,7 @@ public class SvgRendererState
 	/// Gets a maze exporter with all settings applied.
 	/// </summary>
 	/// <param name="generator">Generator that is/was used for maze generation.</param>
+	/// <param name="isGenerated">Flag that determines whether maze is generated and ready for pathfinding.</param>
 	/// <param name="minify">
 	/// When <see langword="true" />, some settings will 
 	/// be ignored in order to minify output SVG as much as possible without
@@ -138,7 +139,7 @@ public class SvgRendererState
 	/// <returns>
 	/// A maze exporter with all settings applied.
 	/// </returns>
-	public MazeSvgExporter GetExporter(MazeGenerator generator, bool minify = false)
+	public MazeSvgExporter GetExporter(MazeGenerator generator, bool isGenerated, bool minify = false)
 	{
 		Maze maze = generator.Maze;
 		MazeSvgExporter exporter = new(generator.Maze, CellSize, Padding);
@@ -187,7 +188,7 @@ public class SvgRendererState
 		{
 			exporter.Add(Edges.OfPassagesGraph(EdgesPath));
 		}
-		if (SolutionPath != null)
+		if (SolutionPath != null && isGenerated)
 		{
 			exporter.Add(Solutions.All(pathCreator: _ => SolutionPath));
 		}

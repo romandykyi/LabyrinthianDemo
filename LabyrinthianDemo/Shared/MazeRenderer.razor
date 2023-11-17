@@ -29,7 +29,9 @@
 	private async Task OnMazeUpdated()
 	{
 		if (MazeState.Generator == null) return;
-		MazeSvgExporter? exporter = RendererState.GetExporter(MazeState.Generator, true);
+		MazeSvgExporter? exporter = RendererState.GetExporter(
+			MazeState.Generator, MazeState.IsGenerated, true
+		);
 
 		// Export maze into a string
 		using StringWriter stringWriter = new();
@@ -46,7 +48,9 @@
 	private async Task ExportSvg()
 	{
 		if (MazeState.Generator == null || !MazeState.IsGenerated) return;
-		MazeSvgExporter exporter = RendererState.GetExporter(MazeState.Generator);
+		MazeSvgExporter exporter = RendererState.GetExporter(
+			MazeState.Generator, MazeState.IsGenerated
+		);
 		
 		// Save a maze into a memory stream
 		MemoryStream memoryStream = new();
