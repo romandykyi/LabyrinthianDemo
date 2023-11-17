@@ -171,10 +171,6 @@ public class SvgRendererState
 			exporter.Add(
 				Cells.Selected(SelectedCellEnumerable(generator), SelectedCellGroup));
 		}
-		if (NodesGroup != null)
-		{
-			exporter.Add(Nodes.All(NodesShape, NodesGroup));
-		}
 		if (WallsPath != null)
 		{
 			WallsPath.StrokeWidth = WallsWidth;
@@ -194,6 +190,10 @@ public class SvgRendererState
 		if (SolutionPath != null)
 		{
 			exporter.Add(Solutions.All(pathCreator: _ => SolutionPath));
+		}
+		if (NodesGroup != null)
+		{
+			exporter.Add(Nodes.All(NodesShape, NodesGroup));
 		}
 
 		return exporter;
