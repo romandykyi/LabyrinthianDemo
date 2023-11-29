@@ -107,6 +107,15 @@ public class SvgRendererState
 	{
 		Fill = SvgFill.None,
 		StrokeWidth = 1.5f,
+		Stroke = SvgColor.Gray
+	};
+	/// <summary>
+	/// Path for maze passages.
+	/// </summary>
+	public SvgPath? PassagesPath { get; set; } = new()
+	{
+		Fill = SvgFill.None,
+		StrokeWidth = 1.5f,
 		Stroke = SvgColor.Red
 	};
 	/// <summary>
@@ -186,7 +195,11 @@ public class SvgRendererState
 		}
 		if (EdgesPath != null)
 		{
-			exporter.Add(Edges.OfPassagesGraph(EdgesPath));
+			exporter.Add(Edges.OfBaseGraph(EdgesPath, false));
+		}
+		if (PassagesPath != null)
+		{
+			exporter.Add(Edges.OfPassagesGraph(PassagesPath));
 		}
 		if (SolutionPath != null && isGenerated)
 		{

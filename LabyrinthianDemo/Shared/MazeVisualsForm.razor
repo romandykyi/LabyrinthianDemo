@@ -40,6 +40,9 @@
 				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.EdgesPath"
 											Text="Graph Edges" IgnoredProperties="@IgnoredEdgesProperties"
 											DisabledByDefault="true" />
+				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.PassagesPath"
+											Text="Walkable Graph Edges" IgnoredProperties="@IgnoredEdgesProperties"
+											DisabledByDefault="true" />
 			</MudExpansionPanels>
 			<MudButton Variant="Variant.Filled" Color="Color.Tertiary"
 					   OnClick="Rerender">
