@@ -171,8 +171,8 @@
 	private const float MinBias = 0.01f, MaxBias = 10f;
 
 	// Origin shift algorithm settings
-	private bool defaultOriginShiftIterations = false;
-	private int maxOriginShiftIterations = 1000;
+	private bool defaultOriginShiftIterations = true;
+	private int maxOriginShiftIterations = 10_000;
 
 	// Growing tree and recursive backtracker settings
 	private MazeCellSelectionType cellSelection = MazeCellSelectionType.Random;
