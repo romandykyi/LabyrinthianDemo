@@ -9,6 +9,11 @@ namespace LabyrinthianDemo.States;
 public class SvgRendererState
 {
 	/// <summary>
+	/// Default radius of a graph node.
+	/// </summary>
+	public const float NodeRadius = 4f;
+
+	/// <summary>
 	/// Size of a maze cell(in pixels).
 	/// </summary>
 	public float CellSize { get; set; } = 32f;
@@ -110,7 +115,7 @@ public class SvgRendererState
 	/// </summary>
 	public SvgShape? NodeShape { get; set; } = new SvgCircle()
 	{
-		R = 4f,
+		R = NodeRadius,
 		Id = "node"
 	};
 	/// <summary>
@@ -144,6 +149,33 @@ public class SvgRendererState
 		Fill = SvgFill.None,
 		StrokeWidth = 1.5f,
 		Stroke = SvgColor.Red
+	};
+	/// <summary>
+	/// Group for directed edges.
+	/// </summary>
+	public SvgGroup? DirectedEdgesGroup { get; set; } = new()
+	{
+		Fill = SvgFill.None,
+		StrokeWidth = 1.5f,
+		Stroke = SvgColor.Red
+	};
+	/// <summary>
+	/// Get an arrow used for directed edges.
+	/// </summary>
+	public SvgMarker DirectedEdgeArrowMarker => new()
+	{
+		Id = "directedEdgeArrow",
+		Orient = SvgMarkerOrient.Auto,
+		MarkerWidth = 3f,
+		MarkerHeight = 4f,
+		RefX = NodeRadius / (DirectedEdgesGroup!.StrokeWidth != null ? DirectedEdgesGroup.StrokeWidth.Value.Value : 1) + 2.5f,
+		RefY = 1.5f,
+		Shape = new SvgPath()
+		{
+			D = "M0,0 V3 L2.5,1.5 Z",
+			Fill = SvgColor.Black,
+			Stroke = SvgFill.None
+		}
 	};
 	/// <summary>
 	/// Path used for a solution.
@@ -233,6 +265,16 @@ public class SvgRendererState
 		if (PassagesPath != null)
 		{
 			exporter.Add(Edges.OfPassagesGraph(PassagesPath));
+		}
+		if (DirectedEdgesGroup != null && 
+			generator is IDirectedGraphGenerator directedGraphGenerator)
+		{
+			var directedEdges = directedGraphGenerator.DirectedMaze.DirectedEdges;
+			SvgPath path = new()
+			{
+				MarkerEnd = DirectedEdgeArrowMarker
+			};
+			exporter.Add(Edges.Directed(directedEdges, DirectedEdgesGroup, path));
 		}
 		#endregion
 

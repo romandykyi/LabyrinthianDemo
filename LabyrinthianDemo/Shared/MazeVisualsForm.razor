@@ -41,6 +41,9 @@
 				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.PassagesPath"
 											Text="Walkable Graph Edges" IgnoredProperties="@IgnoredEdgesProperties"
 											DisabledByDefault="true" />
+				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.DirectedEdgesGroup"
+											Text="Directed Graph Edges (Origin Shift only)"
+											IgnoredProperties="@IgnoredEdgesProperties" />
 			</MudExpansionPanels>
 			<MudText Typo="Typo.h6"><MudIcon Icon="@Icons.Material.Filled.Animation" />Animation</MudText>
 			<MudExpansionPanels>
