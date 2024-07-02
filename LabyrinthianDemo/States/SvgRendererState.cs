@@ -43,7 +43,7 @@ public class SvgRendererState
 		Stroke = SvgColor.Orange
 	};
 	/// <summary>
-	/// Group of unvisited cells(used in step-by-step generation).
+	/// Group of unvisited cells (used in step-by-step generation).
 	/// </summary>
 	public SvgGroup? UnvisitedCellsGroup { get; set; } = new()
 	{
@@ -52,7 +52,7 @@ public class SvgRendererState
 		Id = "unvisitedCells"
 	};
 	/// <summary>
-	/// Group of highlighted cells(used in step-by-step generation).
+	/// Group of highlighted cells (used in step-by-step generation).
 	/// </summary>
 	public SvgGroup? HighlightedCellsGroup { get; set; } = new()
 	{
@@ -61,7 +61,7 @@ public class SvgRendererState
 		Id = "highlightedCells"
 	};
 	/// <summary>
-	/// Group of a selected cell(used in step-by-step generation).
+	/// Group of a selected cell (used in step-by-step generation).
 	/// </summary>
 	public SvgGroup? SelectedCellGroup { get; set; } = new()
 	{
@@ -79,9 +79,36 @@ public class SvgRendererState
 		StrokeWidth = 1f
 	};
 	/// <summary>
+	/// Group of unvisited nodes (used in step-by-step generation).
+	/// </summary>
+	public SvgGroup? UnvisitedNodesGroup { get; set; } = new()
+	{
+		Fill = SvgColor.Gray,
+		Stroke = SvgColor.Black,
+		Id = "unvisitedNodes"
+	};
+	/// <summary>
+	/// Group of highlighted nodes (used in step-by-step generation).
+	/// </summary>
+	public SvgGroup? HighlightedNodesGroup { get; set; } = new()
+	{
+		Fill = SvgColor.Blue,
+		Stroke = SvgColor.Black,
+		Id = "highlightedNodes"
+	};
+	/// <summary>
+	/// Group of a selected node (used in step-by-step generation).
+	/// </summary>
+	public SvgGroup? SelectedNodeGroup { get; set; } = new()
+	{
+		Fill = SvgColor.Red,
+		Stroke = SvgColor.Black,
+		Id = "selectedNode"
+	};
+	/// <summary>
 	/// Shape of maze graph nodes.
 	/// </summary>
-	public SvgShape? NodesShape { get; set; } = new SvgCircle()
+	public SvgShape? NodeShape { get; set; } = new SvgCircle()
 	{
 		R = 4f,
 		Id = "node"
@@ -160,6 +187,8 @@ public class SvgRendererState
 		{
 			exporter.Add(Background.Create(BackgroundFill));
 		}
+
+		#region Cells
 		if (AllCellsGroup != null)
 		{
 			exporter.Add(Cells.All(AllCellsGroup));
@@ -181,6 +210,8 @@ public class SvgRendererState
 			exporter.Add(
 				Cells.Selected(SelectedCellEnumerable(generator), SelectedCellGroup));
 		}
+		#endregion
+
 		if (WallsPath != null)
 		{
 			WallsPath.StrokeWidth = WallsWidth;
@@ -193,6 +224,8 @@ public class SvgRendererState
 				exporter.Add(Walls.AsOnePath(WallsPath, WallsWidth));
 			}
 		}
+
+		#region Graph edges
 		if (EdgesPath != null)
 		{
 			exporter.Add(Edges.OfBaseGraph(EdgesPath, false));
@@ -201,14 +234,38 @@ public class SvgRendererState
 		{
 			exporter.Add(Edges.OfPassagesGraph(PassagesPath));
 		}
+		#endregion
+
 		if (SolutionPath != null && isGenerated)
 		{
 			exporter.Add(Solutions.All(pathCreator: _ => SolutionPath));
 		}
+
+		#region Nodes
 		if (NodesGroup != null)
 		{
-			exporter.Add(Nodes.All(NodesShape, NodesGroup));
+			exporter.Add(Nodes.All(NodeShape, NodesGroup));
 		}
+		if (UnvisitedNodesGroup != null)
+		{
+			exporter.Add(Nodes.Selected(
+				maze.Cells.Where(c => !generator.VisitedCells[c] && !generator.HighlightedCells[c]),
+				NodeShape,
+				UnvisitedNodesGroup));
+		}
+		if (HighlightedNodesGroup != null)
+		{
+			exporter.Add(Nodes.Selected(
+				maze.Cells.Where(c => generator.HighlightedCells[c]),
+				NodeShape,
+				HighlightedNodesGroup));
+		}
+		if (SelectedNodeGroup != null)
+		{
+			exporter.Add(
+				Nodes.Selected(SelectedCellEnumerable(generator), NodeShape, SelectedNodeGroup));
+		}
+		#endregion
 
 		// Add a default export module in a case when user unchecked all modules
 		if (!exporter.Any(x => x is not MazeDescription and not Background))
