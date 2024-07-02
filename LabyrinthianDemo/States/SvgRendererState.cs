@@ -210,6 +210,12 @@ public class SvgRendererState
 			exporter.Add(Nodes.All(NodesShape, NodesGroup));
 		}
 
+		// Add a default export module in a case when user unchecked all modules
+		if (!exporter.Any(x => x is not MazeDescription and not Background))
+		{
+			exporter.Add(Walls.AsOnePath());
+		}
+
 		return exporter;
 	}
 }
