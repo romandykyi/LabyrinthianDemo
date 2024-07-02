@@ -18,6 +18,8 @@ public enum GenerationAlgorithm
 	HuntAndKill,
 	[Display(Name = "Kruskal's algorithm")]
 	Kruskal,
+	[Display(Name = "Origin Shift")]
+	OriginShift,
 	[Display(Name = "Prim's algorithm")]
 	Prim,
 	[Display(Name = "Customizable Recursive backtracker")]

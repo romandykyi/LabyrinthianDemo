@@ -288,6 +288,7 @@
 			GenerationAlgorithm.EdgeBasedPrim => new EdgeBasedPrimGeneration(maze, seed),
 			GenerationAlgorithm.GrowingTree => new GrowingTreeGeneration(maze, seed, GetCellSelection()),
 			GenerationAlgorithm.HuntAndKill => new HuntAndKillGeneration(maze, seed),
+			GenerationAlgorithm.OriginShift => new OriginShiftGeneration(maze, seed),
 			GenerationAlgorithm.Kruskal => new KruskalGeneration(maze, seed),
 			GenerationAlgorithm.Prim => new PrimGeneration(maze, seed),
 			GenerationAlgorithm.RecursiveBacktracker => new RecursiveBacktrackerGeneration(maze, seed, GetCellSelection()),
