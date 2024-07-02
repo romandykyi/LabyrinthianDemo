@@ -95,6 +95,13 @@
 						}
 					</MudSelect>
 					break;
+
+				case GenerationAlgorithm.OriginShift:
+					<MudNumericField @bind-Value="maxOriginShiftIterations" Disabled="@defaultOriginShiftIterations"
+								  Label="Iterations count" Min="0" Max="@int.MaxValue" Step="1" />
+					<MudCheckBox @bind-Checked="defaultOriginShiftIterations"
+								 Label="Use default iterations count (cellsCount * 10)" Color="Color.Primary" />
+					break;
 			}
 			<!-- Seed section -->
 			<MudTextField @bind-Value="seed" Disabled="@useRandomSeed"
@@ -162,6 +169,10 @@
 	// Recursive division algorithm settings
 	private decimal bias = 0.5m;
 	private const float MinBias = 0.01f, MaxBias = 10f;
+
+	// Origin shift algorithm settings
+	private bool defaultOriginShiftIterations = false;
+	private int maxOriginShiftIterations = 1000;
 
 	// Growing tree and recursive backtracker settings
 	private MazeCellSelectionType cellSelection = MazeCellSelectionType.Random;
@@ -288,7 +299,7 @@
 			GenerationAlgorithm.EdgeBasedPrim => new EdgeBasedPrimGeneration(maze, seed),
 			GenerationAlgorithm.GrowingTree => new GrowingTreeGeneration(maze, seed, GetCellSelection()),
 			GenerationAlgorithm.HuntAndKill => new HuntAndKillGeneration(maze, seed),
-			GenerationAlgorithm.OriginShift => new OriginShiftGeneration(maze, seed),
+			GenerationAlgorithm.OriginShift => new OriginShiftGeneration(maze, seed, !defaultOriginShiftIterations ? maxOriginShiftIterations : null),
 			GenerationAlgorithm.Kruskal => new KruskalGeneration(maze, seed),
 			GenerationAlgorithm.Prim => new PrimGeneration(maze, seed),
 			GenerationAlgorithm.RecursiveBacktracker => new RecursiveBacktrackerGeneration(maze, seed, GetCellSelection()),
