@@ -96,11 +96,18 @@
 					</MudSelect>
 					break;
 
+				case GenerationAlgorithm.AldousBroder:
+					<NeighborSelection @bind-Selector="aldousBroderNeighborSelector" />
+					break;
+
 				case GenerationAlgorithm.OriginShift:
 					<MudNumericField @bind-Value="maxOriginShiftIterations" Disabled="@defaultOriginShiftIterations"
-								  Label="Iterations count" Min="0" Max="@int.MaxValue" Step="1" />
+								  Label="Max iterations count" Min="0" Max="@int.MaxValue" Step="1" />
 					<MudCheckBox @bind-Checked="defaultOriginShiftIterations"
 								 Label="Use default iterations count (cellsCount * 10)" Color="Color.Primary" />
+					<MudCheckBox @bind-Checked="stopAfterAllCellsAreVisited"
+								 Label="Stop after all cells are visited" Color="Color.Primary" />
+					<NeighborSelection @bind-Selector="originShiftNeighborSelector" />
 					break;
 			}
 			<!-- Seed section -->
@@ -167,12 +174,17 @@
 	private decimal horizontalCarveProbability { get; set; } = 0.5m;
 
 	// Recursive division algorithm settings
-	private decimal bias = 0.5m;
+	private decimal bias { get; set; } = 0.5m;
 	private const float MinBias = 0.01f, MaxBias = 10f;
 
 	// Origin shift algorithm settings
-	private bool defaultOriginShiftIterations = true;
-	private int maxOriginShiftIterations = 10_000;
+	private INeighborSelector originShiftNeighborSelector { get; set; } = new UnweightedNeighborSelector();
+	private bool defaultOriginShiftIterations { get; set; } = true;
+	private bool stopAfterAllCellsAreVisited { get; set; } = false;
+	private int maxOriginShiftIterations { get; set; } = 10_000;
+
+	// Aldous Broder settings
+	private INeighborSelector aldousBroderNeighborSelector { get; set; } = new UnweightedNeighborSelector();
 
 	// Growing tree and recursive backtracker settings
 	private MazeCellSelectionType cellSelection = MazeCellSelectionType.Random;
@@ -246,6 +258,16 @@
 		}
 	}
 
+	private OriginShiftParams GetOriginShiftParams(Maze maze)
+	{
+		return new()
+		{
+			MaxIterations = defaultOriginShiftIterations ? maze.Cells.Length * 10 : maxOriginShiftIterations,
+			GenerateUntilAllCellsAreVisited = stopAfterAllCellsAreVisited,
+			NeighborSelector = originShiftNeighborSelector
+		};
+	}
+
 	// Generate a maze based on user input
 	private async Task Generate(CancellationToken cancellationToken)
 	{
@@ -293,13 +315,13 @@
 		// Select a generation algorithm
 		MazeGenerator generator = algorithm switch
 		{
-			GenerationAlgorithm.AldousBroder => new AldousBroderGeneration(maze, seed),
+			GenerationAlgorithm.AldousBroder => new AldousBroderGeneration(maze, seed, neighborSelector: aldousBroderNeighborSelector),
 			GenerationAlgorithm.BinaryTree => new BinaryTreeGeneration(maze, seed),
 			GenerationAlgorithm.DepthFirstSearch => new DFSGeneration(maze, seed),
 			GenerationAlgorithm.EdgeBasedPrim => new EdgeBasedPrimGeneration(maze, seed),
 			GenerationAlgorithm.GrowingTree => new GrowingTreeGeneration(maze, seed, GetCellSelection()),
 			GenerationAlgorithm.HuntAndKill => new HuntAndKillGeneration(maze, seed),
-			GenerationAlgorithm.OriginShift => new OriginShiftGeneration(maze, seed, !defaultOriginShiftIterations ? maxOriginShiftIterations : null),
+			GenerationAlgorithm.OriginShift => new OriginShiftGeneration(maze, seed, @params: GetOriginShiftParams(maze)),
 			GenerationAlgorithm.Kruskal => new KruskalGeneration(maze, seed),
 			GenerationAlgorithm.Prim => new PrimGeneration(maze, seed),
 			GenerationAlgorithm.RecursiveBacktracker => new RecursiveBacktrackerGeneration(maze, seed, GetCellSelection()),

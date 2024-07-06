@@ -1,0 +1,69 @@
+﻿<MudCheckBox @bind-Checked="useHeatMap" @bind-Checked:after="Update"
+			 Label="Use heat maps" Color="Color.Primary" />
+@if (useHeatMap)
+{
+	<MudSelect T="HeatMapDecayFunctionType" Label="Decay function" 
+		@bind-Value="decayFunction" @bind-Value:after="Update">
+		@foreach (HeatMapDecayFunctionType func in Enum.GetValues(typeof(HeatMapDecayFunctionType)))
+		{
+			<MudSelectItem T="HeatMapDecayFunctionType" Value="@func">
+				@func.ToHumanReadableString()
+			</MudSelectItem>
+		}
+	</MudSelect>
+	switch (decayFunction)
+	{
+		case HeatMapDecayFunctionType.Linear:
+			<MudNumericField @bind-Value="linearDelta" Min="0.0" Max="1.0"
+							 Label="Delta" @bind-Value:after="Update" />
+			break;
+		case HeatMapDecayFunctionType.Multiplicative:
+			<MudNumericField @bind-Value="multiplicativeAlpha" Min="0.0" Max="1.0"
+							 Label="Alpha" @bind-Value:after="Update" />
+			break;
+		case HeatMapDecayFunctionType.Exponential:
+			<MudNumericField @bind-Value="exponentialAlpha" Min="0.0"
+							 Label="Alpha" @bind-Value:after="Update" />
+			break;
+		case HeatMapDecayFunctionType.Logarithmic:
+			<MudNumericField @bind-Value="logBase" Min="1.0"
+							 Label="Logarithm base" @bind-Value:after="Update" />
+			break;
+	}
+}
+
+@code {
+	private bool useHeatMap { get; set; } = false;
+	private HeatMapDecayFunctionType decayFunction { get; set; } = HeatMapDecayFunctionType.Multiplicative;
+
+	private double linearDelta { get; set; } = 0.1;
+	private double multiplicativeAlpha { get; set; } = 0.05;
+	private double exponentialAlpha { get; set; } = 1;
+	private double logBase { get; set; } = Math.E;
+
+	[Parameter]
+	public INeighborSelector Selector { get; set; } = new UnweightedNeighborSelector();
+	[Parameter]
+	public EventCallback<INeighborSelector> SelectorChanged { get; set; }
+
+	private HeatMapNeighborSelector GetHeatMapNeighborSelector()
+	{
+		return new(
+			decayFunction switch
+			{
+				HeatMapDecayFunctionType.Linear => HeatMapDecayFunctions.Linear(linearDelta),
+				HeatMapDecayFunctionType.Multiplicative => HeatMapDecayFunctions.Multiplicative(multiplicativeAlpha),
+				HeatMapDecayFunctionType.Exponential => HeatMapDecayFunctions.Exponential(Math.Max(exponentialAlpha, double.Epsilon)),
+				HeatMapDecayFunctionType.Logarithmic => HeatMapDecayFunctions.Logarithmic(logBase),
+				HeatMapDecayFunctionType.InverseVisit => HeatMapDecayFunctions.InverseVisit(),
+				_ => throw new InvalidOperationException("Invalid heat map decay function type.")
+			}
+		);
+	}
+
+	private async Task Update()
+	{
+		Selector = useHeatMap ? GetHeatMapNeighborSelector() : new UnweightedNeighborSelector();
+		await SelectorChanged.InvokeAsync(Selector);
+	}
+}
