@@ -173,7 +173,7 @@ public class SvgRendererState
 		Shape = new SvgPath()
 		{
 			D = "M0,0 V3 L2.5,1.5 Z",
-			Fill = SvgColor.Black,
+			Fill = DirectedEdgesGroup.Stroke,
 			Stroke = SvgFill.None
 		}
 	};
