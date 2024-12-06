@@ -2,6 +2,8 @@
 @inject MazeState MazeState
 @inject ISnackbar Snackbar
 
+<LabyrinthianDemo.Shared.Input.GesturesReader OnGestureDetected="OnMazeGestureDetected" />
+
 <MudGrid Justify="Justify.Center">
 	<!-- Maze section -->
 	<MudItem xs="12" sm="11" md="10" lg="5" xl="4">
@@ -238,6 +240,11 @@
 	// When "Generate" button was clicked
 	private async Task OnGenerateButtonClicked()
 	{
+		await StartGeneration();
+	}
+
+	private async Task StartGeneration()
+	{
 		// Cancel previous generation
 		if (_generateCancellationSource != null)
 		{
@@ -246,6 +253,12 @@
 		// Start new generation
 		_generateCancellationSource = new();
 		await Generate(_generateCancellationSource.Token);
+	}
+
+	private async Task OnMazeGestureDetected(MazeType type)
+	{
+		mazeType = type;
+		await StartGeneration();
 	}
 
 	// When "Cancel" button was clicked

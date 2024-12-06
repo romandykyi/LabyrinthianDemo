@@ -1,0 +1,54 @@
+﻿@inject IJSRuntime JSRuntime
+
+@code {
+    // A reference passed to the JS script
+    private DotNetObjectReference<GesturesReader>? _dotNetReference;
+
+    /// <summary>
+    /// An event that triggers by the maze shape gesture.
+    /// </summary>
+    [Parameter]
+    public EventCallback<MazeType> OnGestureDetected { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetReference = DotNetObjectReference.Create(this);
+
+            // Initialize JavaScript interop
+            await JSRuntime.InvokeVoidAsync("initMazeGestures", _dotNetReference);
+        }
+    }
+
+    [JSInvokable]
+    public async Task SendGestureAsync(string gestureType)
+    {
+        MazeType type = gestureType switch
+        {
+            "square" => MazeType.Orthogonal,
+            "triangle" => MazeType.TriangularDelta,
+            "triangle-square" => MazeType.RectangularDelta,
+            "triangle-hexagon" => MazeType.HexagonalDelta,
+            "hexagon" => MazeType.HexagonalSigma,
+            "hexagon-square" => MazeType.RectangularSigma,
+            "octagon" => MazeType.Upsilon,
+            "octagon-diagonal" => MazeType.AlternativeUpsilon,
+            "circle" => MazeType.Theta,
+
+            _ => throw new ArgumentException(
+                $"An invalid gesture type '{gestureType}' was passed.", 
+                nameof(gestureType))
+        };
+
+        if (OnGestureDetected.HasDelegate)
+        {
+            await OnGestureDetected.InvokeAsync(type);
+        }
+    }
+
+    public void Dispose()
+    {
+        _dotNetReference?.Dispose();
+    }
+}
