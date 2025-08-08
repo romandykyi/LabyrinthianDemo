@@ -8,3 +8,11 @@ You can access the demo hosted on GitHub Pages [here](https://romandykyi.github.
 * Customize export parameters for your mazes.
 * Visualize the mazes generation in real-time.
 * Export mazes in SVG format.
+
+## Gestures Support
+
+The demo page supports mouse gestures. In order to use them, hold right mouse button and draw one of these patterns:
+
+![Diagram bez tytułu drawio](https://github.com/user-attachments/assets/04035916-f925-4c52-9c8c-95848cfeb3b2)
+
+Gestures are detected using [js-mgestures](https://github.com/mailcmd/js-mgestures).
