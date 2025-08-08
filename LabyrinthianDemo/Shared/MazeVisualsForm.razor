@@ -4,7 +4,7 @@
 
 <MudGrid Justify="Justify.Center">
 	<MudItem xs="12" sm="12" md="10" lg="6" xl="5">
-		<MudPaper Class="pa-4">
+		<MudPaper Class="pa-4 ma-4">
 			<MudText Typo="Typo.h5">SVG settings</MudText>
 			<MudNumericField Label="Cell size"
 			@bind-Value="RendererState.CellSize" />
@@ -12,15 +12,15 @@
 			@bind-Value="RendererState.Padding" />
 			<MudNumericField Label="Walls width" Min="2.0f"
 			@bind-Value="RendererState.WallsWidth" />
-			<MudCheckBox @bind-Checked="RendererState.Indent"
+			<MudCheckBox @bind-Value="RendererState.Indent"
 						 Label="Indent" />
 			<SvgFillField @bind-Fill="RendererState.BackgroundFill"
 						  Label="Background" />
-			<MudText Typo="Typo.h6"><MudIcon Icon="@Icons.Material.Filled.GridOn" />Maze</MudText>
+			<MudText Typo="Typo.h6" Class="mt-4"><MudIcon Icon="@Icons.Material.Filled.GridOn" />Maze</MudText>
 			<MudExpansionPanels>
 				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.WallsPath"
 											Text="Walls" IgnoredProperties="@IgnoredWallsProperties">
-					<MudCheckBox @bind-Checked="RendererState.ExportWallsAsSeparatePaths"
+					<MudCheckBox @bind-Value="RendererState.ExportWallsAsSeparatePaths"
 								 Color="Color.Tertiary">
 						Separate &lt;path&gt; tags
 					</MudCheckBox>
@@ -30,7 +30,7 @@
 				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.AllCellsGroup"
 											Text="Cells" DisabledByDefault="true" />
 			</MudExpansionPanels>
-			<MudText Typo="Typo.h6"><MudIcon Icon="@Icons.Material.Filled.AccountTree" />Graph</MudText>
+			<MudText Class="mt-4" Typo="Typo.h6"><MudIcon Icon="@Icons.Material.Filled.AccountTree" />Graph</MudText>
 			<MudExpansionPanels>
 				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.NodesGroup"
 											Text="Graph Nodes"
@@ -45,7 +45,7 @@
 											Text="Directed Graph Edges (Origin Shift only)"
 											IgnoredProperties="@IgnoredEdgesProperties" />
 			</MudExpansionPanels>
-			<MudText Typo="Typo.h6"><MudIcon Icon="@Icons.Material.Filled.Animation" />Animation</MudText>
+			<MudText Class="mt-4" Typo="Typo.h6"><MudIcon Icon="@Icons.Material.Filled.Animation" />Animation</MudText>
 			<MudExpansionPanels>
 				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.UnvisitedCellsGroup"
 											Text="Unvisited Cells" />
@@ -54,7 +54,7 @@
 				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.SelectedCellGroup"
 											Text="Selected Cell" />
 			</MudExpansionPanels>
-			<MudText Typo="Typo.h6"><MudIcon Icon="@Icons.Material.Filled.Animation" />Graph animation</MudText>
+			<MudText Class="mt-4" Typo="Typo.h6"><MudIcon Icon="@Icons.Material.Filled.Animation" />Graph animation</MudText>
 			<MudExpansionPanels>
 				<ExportModuleExpansionPanel @bind-ExportModule="RendererState.UnvisitedNodesGroup"
 											Text="Unvisited Nodes" DisabledByDefault="true" />
@@ -64,7 +64,7 @@
 											Text="Selected Node" DisabledByDefault="true" />
 			</MudExpansionPanels>
 			<MudButton Variant="Variant.Filled" Color="Color.Tertiary"
-					   OnClick="Rerender">
+					   OnClick="Rerender" Class="mt-4">
 				Apply
 			</MudButton>
 		</MudPaper>

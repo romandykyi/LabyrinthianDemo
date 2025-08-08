@@ -105,9 +105,9 @@
 				case GenerationAlgorithm.OriginShift:
 					<MudNumericField @bind-Value="maxOriginShiftIterations" Disabled="@defaultOriginShiftIterations"
 								  Label="Max iterations count" Min="0" Max="@int.MaxValue" Step="1" />
-					<MudCheckBox @bind-Checked="defaultOriginShiftIterations"
+					<MudCheckBox @bind-Value="defaultOriginShiftIterations"
 								 Label="Use default iterations count (cellsCount * 10)" Color="Color.Primary" />
-					<MudCheckBox @bind-Checked="stopAfterAllCellsAreVisited"
+					<MudCheckBox @bind-Value="stopAfterAllCellsAreVisited"
 								 Label="Stop after all cells are visited" Color="Color.Primary" />
 					<NeighborSelection @bind-Selector="originShiftNeighborSelector" />
 					break;
@@ -115,10 +115,10 @@
 			<!-- Seed section -->
 			<MudTextField @bind-Value="seed" Disabled="@useRandomSeed"
 						  Label="Seed" />
-			<MudCheckBox @bind-Checked="useRandomSeed"
+			<MudCheckBox @bind-Value="useRandomSeed"
 						 Label="Random seed" Color="Color.Primary" />
 			<!-- Step-by-step generation section -->
-			<MudCheckBox @bind-Checked="generateStepByStep"
+			<MudCheckBox @bind-Value="generateStepByStep"
 						 Label="Generate step by step" Color="Color.Primary" />
 			<MudSlider @bind-Value="generationSpeed"
 					   Min="0.0" Max="1.0" Step="0.01"
