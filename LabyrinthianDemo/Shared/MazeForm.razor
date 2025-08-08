@@ -151,7 +151,7 @@
 	// Cancelation token source for Generate method
 	private CancellationTokenSource? _generateCancellationSource;
 
-	private GenerationAlgorithm algorithm { get; set; }
+	private GenerationAlgorithm algorithm { get; set; } = GenerationAlgorithm.RecursiveBacktracker;
 	private MazeType mazeType { get; set; }
 
 	// Rectangular sizes
